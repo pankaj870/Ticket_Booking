@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+    <defs>
+        <linearGradient id="orbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FFA84A" />
+            <stop offset="55%" stop-color="#FF7A00" />
+            <stop offset="100%" stop-color="#F25C05" />
+        </linearGradient>
+        <linearGradient id="cRibbon" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FFFFFF" />
+            <stop offset="100%" stop-color="#FFF5EA" />
+        </linearGradient>
+        <linearGradient id="bgCanvas" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#FFFFFF" />
+            <stop offset="100%" stop-color="#FCF9F3" />
+        </linearGradient>
+        <linearGradient id="sparkleGold" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FFF3C4" />
+            <stop offset="100%" stop-color="#FFCA28" />
+        </linearGradient>
+        <filter id="cozyGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#FF7A00" flood-opacity="0.25" />
+            <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#E05300" flood-opacity="0.15" />
+        </filter>
+        <filter id="cardBorderShadow" x="-10%" y="-10%" width="120%" height="120%">
+            <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000000" flood-opacity="0.04" />
+        </filter>
+    </defs>
+
+    <!-- Background App Icon Squircle Container -->
+    <rect x="24" y="24" width="464" height="464" rx="124" fill="url(#bgCanvas)" filter="url(#cardBorderShadow)" />
+    <rect x="26" y="26" width="460" height="460" rx="122" fill="none" stroke="#F3EDE3" stroke-width="4" />
+
+    <!-- Centered Radiant Warmth Sun / Cinema Reel Orb -->
+    <circle cx="256" cy="256" r="186" fill="url(#orbGrad)" filter="url(#cozyGlow)" />
+
+    <!-- Subtle concentric cinema reel orbit ring -->
+    <circle cx="256" cy="256" r="148" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-dasharray="8 14"
+        opacity="0.28" />
+
+    <!-- Iconic 'C' Geometry: Cinema Film Reel Arch + Mindful Joy Smile Contour -->
+    <path d="M 334 162 C 206 128, 142 196, 142 256 C 142 316, 206 384, 334 350" fill="none" stroke="url(#cRibbon)"
+        stroke-width="34" stroke-linecap="round" />
+
+    <!-- Cinema Reel / Popcorn Cloud Puffs adorning the top curve of 'C' -->
+    <circle cx="204" cy="142" r="26" fill="#FFFFFF" />
+    <circle cx="256" cy="122" r="32" fill="#FFFFFF" />
+    <circle cx="308" cy="138" r="24" fill="#FFFFFF" />
+    <circle cx="256" cy="126" r="16" fill="url(#sparkleGold)" />
+
+    <!-- Playful Cinema Projector Lens / Pupil in center: completing the mindful winking character -->
+    <circle cx="256" cy="256" r="18" fill="#FFFFFF" />
+
+    <!-- Mindful squinting / joyful smiling eye arc inside 'C' -->
+    <path d="M 236 214 Q 256 194 276 214" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" />
+
+    <!-- Ticket notch / 4-point cinema sparkle accents -->
+    <!-- Top Right Sparkle -->
+    <path d="M 368 206 Q 382 206 382 192 Q 382 206 396 206 Q 382 206 382 220 Q 382 206 368 206 Z"
+        fill="url(#sparkleGold)" />
+
+    <!-- Bottom Left Playful Cinema Bead -->
+    <circle cx="152" cy="308" r="10" fill="url(#sparkleGold)" opacity="0.95" />
+
+    <!-- Lower Right subtle spark -->
+    <circle cx="348" cy="298" r="8" fill="#FFFFFF" opacity="0.9" />
+</svg>
