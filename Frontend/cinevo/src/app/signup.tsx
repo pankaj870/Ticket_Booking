@@ -1,3 +1,4 @@
+import { useColorScheme } from 'react-native';
 import React, { useState } from "react";
 import {
   StyleSheet,
@@ -25,18 +26,42 @@ const COUNTRY_CODES = [
 ];
 
 export default function SignupScreen() {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const styles = getStyles(isDark);
+
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [fullName, setFullName] = useState("Alex Morgan");
   const [email, setEmail] = useState("alex@cinemalover.com");
   const [mobile, setMobile] = useState("");
-  const [countryCode, setCountryCode] = useState("🇺🇸 +1");
+  const [countryCode, setCountryCode] = useState("US +1");
   const [showCountryPicker, setShowCountryPicker] = useState(false);
   const [password, setPassword] = useState("CozyMovieNights2025!");
   const [showPassword, setShowPassword] = useState(false);
-
   const [agreeTerms, setAgreeTerms] = useState(true);
-  const [agreeMarketing, setAgreeMarketing] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSignup = () => {
+    setError("");
+    if (!fullName || !email || !mobile || !password) {
+      setError("Please fill in all required fields.");
+      return;
+    }
+    if (!email.includes("@")) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+    if (!agreeTerms) {
+      setError("Please agree to the terms to continue.");
+      return;
+    }
+    router.push("/signup-step-2");
+  };
 
   const calculatePasswordStrength = (pwd: string) => {
     if (!pwd) return 0;
@@ -49,7 +74,6 @@ export default function SignupScreen() {
   };
 
   const strengthScore = calculatePasswordStrength(password);
-
   let strengthLabel = "Weak";
   let activeBars = 0;
   let strengthColor = "#8c7263";
@@ -67,10 +91,10 @@ export default function SignupScreen() {
       strengthColor = "#ff7a00";
       iconName = "shield";
     } else {
-      strengthLabel = "Strong & Delightful";
+      strengthLabel = "Strong";
       activeBars = 3;
       strengthColor = "#994700";
-      iconName = "verified";
+      iconName = "check-circle";
     }
   }
 
@@ -79,16 +103,16 @@ export default function SignupScreen() {
       {/* HEADER */}
       <SafeAreaView edges={["top"]} style={styles.safeHeader}>
         <View style={styles.header}>
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.8}
             onPress={() => router.back()}
             style={styles.backBtn}
           >
-            <MaterialIcons name="arrow-back" size={24} color="#1c1c18" />
+            <MaterialIcons name="arrow-back" size={24} color={isDark ? "#ffffff" : "#1c1c18"} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Create Account</Text>
           <View style={styles.profileWrapper}>
             <View style={styles.profileInner}>
-              <MaterialIcons name="person" size={18} color="#ffffff" />
+              <MaterialIcons name="person" size={18} color={isDark ? "#1c1c1e" : "#ffffff"} />
             </View>
           </View>
         </View>
@@ -107,52 +131,16 @@ export default function SignupScreen() {
         >
           {/* Progress Header */}
           <View style={styles.progressContainer}>
-            <View style={styles.progressInner}>
-              <View style={styles.progressLeft}>
-                <View style={styles.stepBadge}>
-                  <Text style={styles.stepBadgeText}>1</Text>
-                </View>
-                <Text style={styles.stepText}>Step 1 of 2: Profile Setup</Text>
-              </View>
-              <View style={styles.progressRight}>
-                <View style={styles.progressBarActive} />
-                <View style={styles.progressBarInactive} />
-              </View>
+            <View style={styles.progressRow}>
+              <Text style={styles.stepText}>STEP 1 OF 2</Text>
+              <Text style={styles.stepDesc}>Profile Details</Text>
             </View>
-          </View>
-
-          {/* Intro Section */}
-          {/* <View style={styles.introSection}>
-            <View style={styles.introCard}>
-              <View style={styles.badgeWrap}>
-                <MaterialIcons
-                  name="local-activity"
-                  size={18}
-                  color="#994700"
-                />
-                <Text style={styles.badgeText}>FREE MEMBERSHIP</Text>
-              </View>
-              <Text style={styles.introTitle}>Join the Cinevo Club 🎉</Text>
-              <Text style={styles.introSubtitle}>
-                Unlock member rates, complimentary popcorn upgrades, and
-                effortless indie & blockbuster booking.
-              </Text>
-              <View style={styles.decorativeCircle} />
+            <View style={styles.progressBarBg}>
+              <View style={styles.progressBarFill} />
             </View>
-          </View> */}
-
-          {/* Perks Highlight */}
-          <View style={styles.perksCard}>
-            <View style={styles.perkIconWrap}>
-              <MaterialIcons name="stars" size={26} color="#994700" />
-            </View>
-            <View style={styles.perkTextWrap}>
-              <Text style={styles.perkTitle} numberOfLines={1}>
-                Free regular popcorn on birthday month 🍿
-              </Text>
-              <Text style={styles.perkSubtitle}>
-                Plus earn 10 pts for every $1 spent on comfy seats
-              </Text>
+            <View style={styles.titleSection}>
+              <Text style={styles.pageTitle}>Create Account</Text>
+              <Text style={styles.pageSubtitle}>Enter your details to get started with Cinevo.</Text>
             </View>
           </View>
 
@@ -168,7 +156,7 @@ export default function SignupScreen() {
                 <MaterialIcons
                   name="badge"
                   size={20}
-                  color="#584235"
+                  color={isDark ? "#a1a1aa" : "#584235"}
                   style={styles.inputIcon}
                 />
                 <TextInput
@@ -191,7 +179,7 @@ export default function SignupScreen() {
                 <MaterialIcons
                   name="mail"
                   size={20}
-                  color="#584235"
+                  color={isDark ? "#a1a1aa" : "#584235"}
                   style={styles.inputIcon}
                 />
                 <TextInput
@@ -219,13 +207,13 @@ export default function SignupScreen() {
                   onPress={() => setShowCountryPicker(true)}
                 >
                   <Text style={styles.countryCode}>{countryCode}</Text>
-                  <MaterialIcons name="expand-more" size={18} color="#584235" />
+                  <MaterialIcons name="expand-more" size={18} color={isDark ? "#a1a1aa" : "#584235"} />
                 </TouchableOpacity>
                 <View style={[styles.inputWrapper, { flex: 1 }]}>
                   <MaterialIcons
                     name="sms"
                     size={20}
-                    color="#584235"
+                    color={isDark ? "#a1a1aa" : "#584235"}
                     style={styles.inputIcon}
                   />
                   <TextInput
@@ -247,7 +235,7 @@ export default function SignupScreen() {
                 <MaterialIcons
                   name="lock"
                   size={20}
-                  color="#584235"
+                  color={isDark ? "#a1a1aa" : "#584235"}
                   style={styles.inputIcon}
                 />
                 <TextInput
@@ -258,14 +246,14 @@ export default function SignupScreen() {
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
                 />
-                <TouchableOpacity
+                <TouchableOpacity activeOpacity={0.8}
                   onPress={() => setShowPassword(!showPassword)}
                   style={styles.eyeBtn}
                 >
                   <MaterialIcons
                     name={showPassword ? "visibility-off" : "visibility"}
                     size={20}
-                    color="#584235"
+                    color={isDark ? "#a1a1aa" : "#584235"}
                   />
                 </TouchableOpacity>
               </View>
@@ -299,31 +287,38 @@ export default function SignupScreen() {
                   <View
                     style={[
                       styles.barBase,
-                      activeBars >= 1 && { backgroundColor: strengthColor },
+                      activeBars >= 1 && { backgroundColor: '#ff7a00' },
                     ]}
                   />
                   <View
                     style={[
                       styles.barBase,
-                      activeBars >= 2 && { backgroundColor: strengthColor },
+                      activeBars >= 2 && { backgroundColor: '#ff7a00' },
                     ]}
                   />
                   <View
                     style={[
                       styles.barBase,
-                      activeBars >= 3 && { backgroundColor: strengthColor },
+                      activeBars >= 3 && { backgroundColor: '#ff7a00' },
                     ]}
                   />
                 </View>
               </View>
             </View>
 
+            {/* Error Message */}
+            {error ? (
+              <View style={styles.errorContainer}>
+                <MaterialIcons name="error-outline" size={16} color={isDark ? "#ff897d" : "#ba1a1a"} />
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            ) : null}
+
             {/* Checkboxes */}
             <View style={styles.checkboxGroup}>
-              <TouchableOpacity
+              <TouchableOpacity activeOpacity={0.8}
                 style={styles.checkboxRow}
                 onPress={() => setAgreeTerms(!agreeTerms)}
-                activeOpacity={0.8}
               >
                 <View
                   style={[
@@ -332,68 +327,43 @@ export default function SignupScreen() {
                   ]}
                 >
                   {agreeTerms && (
-                    <MaterialIcons name="check" size={14} color="#ffffff" />
+                    <MaterialIcons name="check" size={14} color={isDark ? "#1c1c1e" : "#ffffff"} />
                   )}
                 </View>
                 <Text style={styles.checkboxLabel}>
                   I agree to the{" "}
-                  <Text style={styles.linkText}>Terms of Service</Text> &{" "}
+                  <Text style={styles.linkText}>Terms of Service</Text> and{" "}
                   <Text style={styles.linkText}>Privacy Policy</Text>
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.checkboxRow}
-                onPress={() => setAgreeMarketing(!agreeMarketing)}
-                activeOpacity={0.8}
-              >
-                <View
-                  style={[
-                    styles.checkbox,
-                    agreeMarketing && styles.checkboxChecked,
-                  ]}
-                >
-                  {agreeMarketing && (
-                    <MaterialIcons name="check" size={14} color="#ffffff" />
-                  )}
-                </View>
-                <Text style={styles.checkboxLabel}>
-                  Send me curated weekly movie recommendations & secret matinee
-                  discounts 🎬
                 </Text>
               </TouchableOpacity>
             </View>
 
             {/* Submit */}
             <View style={styles.submitSection}>
-              <TouchableOpacity style={styles.submitBtn} onPress={() => router.push('/signup-step-2')}>
-                <Text style={styles.submitBtnText}>Create Free Account</Text>
-                <MaterialIcons name="arrow-forward" size={20} color="#ffffff" />
+              <TouchableOpacity activeOpacity={0.8} 
+                style={[styles.submitBtn, (!fullName || !email || !mobile || !password || !agreeTerms) && styles.submitBtnDisabled]} 
+                onPress={handleSignup}
+              >
+                <Text style={styles.submitBtnText}>Continue to Step 2</Text>
+                <MaterialIcons name="arrow-forward" size={20} color={isDark ? "#1c1c1e" : "#ffffff"} />
               </TouchableOpacity>
             </View>
 
             {/* Footer */}
             <View style={styles.footerSection}>
-              <Text style={styles.footerText}>Already a member? </Text>
-              <TouchableOpacity
+              <Text style={styles.footerText}>Already have an account? </Text>
+              <TouchableOpacity activeOpacity={0.8}
                 onPress={() => router.push("/login")}
                 style={styles.signInLink}
               >
                 <Text style={styles.signInText}>Sign In</Text>
                 <MaterialIcons
-                  name="login"
+                  name="arrow-forward"
                   size={16}
-                  color="#994700"
-                  style={{ marginLeft: 2 }}
+                  color={isDark ? "#ffb370" : "#994700"}
+                  style={{ marginLeft: 4 }}
                 />
               </TouchableOpacity>
-            </View>
-
-            <View style={styles.securityBadge}>
-              <MaterialIcons name="lock-reset" size={16} color="#584235" />
-              <Text style={styles.securityBadgeText}>
-                No payment details required today
-              </Text>
             </View>
           </View>
         </ScrollView>
@@ -413,7 +383,7 @@ export default function SignupScreen() {
         >
           <View style={styles.modalContent}>
             {COUNTRY_CODES.map((item) => (
-              <TouchableOpacity
+              <TouchableOpacity activeOpacity={0.8}
                 key={item.value}
                 style={styles.modalOption}
                 onPress={() => {
@@ -430,7 +400,7 @@ export default function SignupScreen() {
                   {item.label}
                 </Text>
                 {countryCode === item.label && (
-                  <MaterialIcons name="check" size={18} color="#994700" />
+                  <MaterialIcons name="check" size={18} color={isDark ? "#ffb370" : "#994700"} />
                 )}
               </TouchableOpacity>
             ))}
@@ -441,13 +411,13 @@ export default function SignupScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fcf9f3",
+    backgroundColor: (isDark ? "#121212" : "#fcf9f3"),
   },
   safeHeader: {
-    backgroundColor: "rgba(252, 249, 243, 0.8)",
+    backgroundColor: (isDark ? "rgba(18, 18, 18, 0.8)" : "rgba(252, 249, 243, 0.8)"),
     borderBottomWidth: 1,
     borderBottomColor: "rgba(0,0,0,0.04)",
     zIndex: 50,
@@ -471,7 +441,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 16,
     fontWeight: "700",
-    color: "#1c1c18",
+    color: (isDark ? "#ffffff" : "#1c1c18"),
   },
   profileWrapper: {
     width: 44,
@@ -483,7 +453,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "#994700",
+    backgroundColor: (isDark ? "#ffb370" : "#994700"),
     alignItems: "center",
     justifyContent: "center",
   },
@@ -494,144 +464,51 @@ const styles = StyleSheet.create({
   // Progress Header
   progressContainer: {
     paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 16,
+    paddingTop: 16,
+    marginBottom: 24,
   },
-  progressInner: {
+  progressRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#f6f3ed",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 999,
-  },
-  progressLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  stepBadge: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: "#ff7a00",
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  stepBadgeText: {
-    fontSize: 11,
-    fontWeight: "800",
-    color: "#ffffff",
+    marginBottom: 16,
   },
   stepText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#1c1c18",
-  },
-  progressRight: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  progressBarActive: {
-    width: 32,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#ff7a00",
-  },
-  progressBarInactive: {
-    width: 12,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#e5e2dc",
-  },
-  // Intro Section
-  introSection: {
-    paddingHorizontal: 16,
-    marginBottom: 24,
-  },
-  introCard: {
-    backgroundColor: "#f6f3ed",
-    padding: 24,
-    borderRadius: 32,
-    overflow: "hidden",
-  },
-  badgeWrap: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(252, 249, 243, 0.8)",
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 999,
-    alignSelf: "flex-start",
-    gap: 8,
-    marginBottom: 12,
-  },
-  badgeText: {
     fontSize: 11,
     fontWeight: "800",
-    color: "#584235",
+    color: (isDark ? "#ffb370" : "#994700"),
     textTransform: "uppercase",
     letterSpacing: 0.6,
   },
-  introTitle: {
+  stepDesc: {
+    fontSize: 13,
+    color: (isDark ? "#a1a1aa" : "#584235"),
+  },
+  progressBarBg: {
+    width: "100%",
+    height: 6,
+    backgroundColor: (isDark ? "#2c2c2e" : "#f0eee8"),
+    borderRadius: 3,
+    marginBottom: 24,
+    overflow: "hidden",
+  },
+  progressBarFill: {
+    width: "50%",
+    height: "100%",
+    backgroundColor: (isDark ? "#ff8c1a" : "#ff7a00"),
+    borderRadius: 3,
+  },
+  titleSection: {},
+  pageTitle: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#1c1c18",
-    marginBottom: 8,
+    color: (isDark ? "#ffffff" : "#1c1c18"),
+    marginBottom: 4,
+    letterSpacing: -0.2,
   },
-  introSubtitle: {
+  pageSubtitle: {
     fontSize: 15,
-    color: "#584235",
-    lineHeight: 24,
-  },
-  decorativeCircle: {
-    position: "absolute",
-    right: -24,
-    bottom: -24,
-    width: 112,
-    height: 112,
-    borderRadius: 56,
-    backgroundColor: "#ffb68b",
-    opacity: 0.2,
-  },
-  // Perks Card
-  perksCard: {
-    marginHorizontal: 16,
-    marginBottom: 24,
-    backgroundColor: "#f0eee8",
-    padding: 16,
-    borderRadius: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-  },
-  perkIconWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "#fcf9f3",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  perkTextWrap: {
-    flex: 1,
-  },
-  perkTitle: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#1c1c18",
-  },
-  perkSubtitle: {
-    fontSize: 13,
-    color: "#584235",
-    marginTop: 2,
+    color: (isDark ? "#a1a1aa" : "#584235"),
   },
   // Form Container
   formContainer: {
@@ -650,17 +527,17 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#1c1c18",
+    color: (isDark ? "#ffffff" : "#1c1c18"),
     paddingHorizontal: 4,
   },
   labelHint: {
     fontSize: 13,
-    color: "#584235",
+    color: (isDark ? "#a1a1aa" : "#584235"),
   },
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#ffffff",
+    backgroundColor: (isDark ? "#1c1c1e" : "#ffffff"),
     borderRadius: 999,
     height: 52,
     paddingHorizontal: 16,
@@ -677,7 +554,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 52,
     fontSize: 15,
-    color: "#1c1c18",
+    color: (isDark ? "#ffffff" : "#1c1c18"),
   },
   mobileRow: {
     flexDirection: "row",
@@ -686,7 +563,7 @@ const styles = StyleSheet.create({
   countryPicker: {
     height: 52,
     paddingHorizontal: 16,
-    backgroundColor: "#ffffff",
+    backgroundColor: (isDark ? "#1c1c1e" : "#ffffff"),
     borderRadius: 999,
     flexDirection: "row",
     alignItems: "center",
@@ -700,7 +577,7 @@ const styles = StyleSheet.create({
   countryCode: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#1c1c18",
+    color: (isDark ? "#ffffff" : "#1c1c18"),
   },
   eyeBtn: {
     padding: 8,
@@ -708,7 +585,7 @@ const styles = StyleSheet.create({
   // Strength Meter
   strengthCard: {
     marginTop: 8,
-    backgroundColor: "#f6f3ed",
+    backgroundColor: (isDark ? "#1c1c1e" : "#f6f3ed"),
     padding: 12,
     borderRadius: 16,
   },
@@ -720,7 +597,7 @@ const styles = StyleSheet.create({
   },
   strengthLabel: {
     fontSize: 13,
-    color: "#584235",
+    color: (isDark ? "#a1a1aa" : "#584235"),
   },
   strengthStatus: {
     flexDirection: "row",
@@ -730,7 +607,7 @@ const styles = StyleSheet.create({
   strengthText: {
     fontSize: 11,
     fontWeight: "800",
-    color: "#994700",
+    color: (isDark ? "#ffb370" : "#994700"),
   },
   strengthBars: {
     flexDirection: "row",
@@ -741,7 +618,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "#e5e2dc", // surface-variant (inactive state)
+    backgroundColor: (isDark ? "#3a3a3c" : "#e5e2dc"), // surface-variant (inactive state)
   },
   // Checkboxes
   checkboxGroup: {
@@ -757,22 +634,22 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: "#f0eee8",
+    backgroundColor: (isDark ? "#2c2c2e" : "#f0eee8"),
     alignItems: "center",
     justifyContent: "center",
     marginTop: 2,
   },
   checkboxChecked: {
-    backgroundColor: "#ff7a00",
+    backgroundColor: (isDark ? "#ff8c1a" : "#ff7a00"),
   },
   checkboxLabel: {
     flex: 1,
     fontSize: 13,
-    color: "#1c1c18",
+    color: (isDark ? "#ffffff" : "#1c1c18"),
     lineHeight: 20,
   },
   linkText: {
-    color: "#994700",
+    color: (isDark ? "#ffb370" : "#994700"),
     fontWeight: "700",
     textDecorationLine: "underline",
   },
@@ -782,22 +659,39 @@ const styles = StyleSheet.create({
   },
   submitBtn: {
     height: 52,
-    backgroundColor: "#ff7a00",
+    backgroundColor: (isDark ? "#ff8c1a" : "#ff7a00"),
     borderRadius: 999,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    shadowColor: "#ff7a00",
+    shadowColor: (isDark ? "#ff8c1a" : "#ff7a00"),
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 3,
   },
   submitBtnText: {
-    color: "#ffffff",
+    color: (isDark ? "#1c1c1e" : "#ffffff"),
     fontSize: 14,
     fontWeight: "700",
+  },
+  submitBtnDisabled: {
+    backgroundColor: (isDark ? "rgba(255, 140, 26, 0.5)" : "rgba(255, 122, 0, 0.5)"),
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: (isDark ? '#410002' : '#ffdad6'),
+    padding: 12,
+    borderRadius: 8,
+    gap: 8,
+  },
+  errorText: {
+    color: (isDark ? '#ffb4ab' : '#93000a'),
+    fontSize: 13,
+    fontWeight: '600',
+    flex: 1,
   },
   // Footer
   footerSection: {
@@ -808,7 +702,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 15,
-    color: "#584235",
+    color: (isDark ? "#a1a1aa" : "#584235"),
   },
   signInLink: {
     flexDirection: "row",
@@ -817,7 +711,7 @@ const styles = StyleSheet.create({
   signInText: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#994700",
+    color: (isDark ? "#ffb370" : "#994700"),
   },
   securityBadge: {
     flexDirection: "row",
@@ -834,7 +728,7 @@ const styles = StyleSheet.create({
   securityBadgeText: {
     fontSize: 11,
     fontWeight: "800",
-    color: "#584235",
+    color: (isDark ? "#a1a1aa" : "#584235"),
   },
   // Modal Styles
   modalOverlay: {
@@ -845,7 +739,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   modalContent: {
-    backgroundColor: "#ffffff",
+    backgroundColor: (isDark ? "#1c1c1e" : "#ffffff"),
     borderRadius: 24,
     width: "100%",
     maxWidth: 320,
@@ -866,10 +760,10 @@ const styles = StyleSheet.create({
   },
   modalOptionText: {
     fontSize: 16,
-    color: "#1c1c18",
+    color: (isDark ? "#ffffff" : "#1c1c18"),
   },
   modalOptionTextActive: {
     fontWeight: "700",
-    color: "#994700",
+    color: (isDark ? "#ffb370" : "#994700"),
   },
 });

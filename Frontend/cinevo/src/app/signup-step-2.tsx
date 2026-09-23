@@ -1,3 +1,4 @@
+import { useColorScheme } from 'react-native';
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Modal, Switch } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -21,21 +22,37 @@ const MONTHS = [
 ];
 
 export default function SignupStep2Screen() {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const styles = getStyles(isDark);
+
   const router = useRouter();
   const insets = useSafeAreaInsets();
   
+  const VIBES_LIST = [
+    { id: '1', label: 'Indie' },
+    { id: '2', label: 'Sci-Fi' },
+    { id: '3', label: 'Anime' },
+    { id: '4', label: 'Documentary' },
+    { id: '5', label: 'Drama' },
+    { id: '6', label: 'Comedy' },
+    { id: '7', label: 'Classic' },
+    { id: '8', label: 'Arthouse' },
+  ];
+
   const [selectedVibes, setSelectedVibes] = useState<string[]>(['1', '2', '4', '6']);
   const [comfortPrefs, setComfortPrefs] = useState({
     heated: true,
     sensory: true,
     treats: false,
-    cc: false,
   });
   
   const [showMonthPicker, setShowMonthPicker] = useState(false);
   const [birthdayMonth, setBirthdayMonth] = useState('October');
+  const [error, setError] = useState("");
 
   const toggleVibe = (id: string) => {
+    setError("");
     setSelectedVibes(prev => 
       prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id]
     );
@@ -45,20 +62,24 @@ export default function SignupStep2Screen() {
     setComfortPrefs(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const handleComplete = () => {
+    if (selectedVibes.length < 3) {
+      setError("Please select at least 3 favorite genres.");
+      return;
+    }
+    router.replace('/(tabs)');
+  };
+
   return (
     <View style={styles.container}>
       {/* HEADER */}
       <SafeAreaView edges={['top']} style={styles.safeHeader}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <MaterialIcons name="arrow-back" size={24} color="#1c1c18" />
+          <TouchableOpacity activeOpacity={0.8} onPress={() => router.back()} style={styles.backBtn}>
+            <MaterialIcons name="arrow-back" size={24} color={isDark ? "#ffffff" : "#1c1c18"} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Create Account</Text>
-          <View style={styles.profileWrapper}>
-            <View style={styles.profileInner}>
-              <MaterialIcons name="person" size={18} color="#ffffff" />
-            </View>
-          </View>
+          <Text style={styles.headerTitle}>Preferences</Text>
+          <View style={styles.headerPlaceholder} />
         </View>
       </SafeAreaView>
 
@@ -66,17 +87,17 @@ export default function SignupStep2Screen() {
         contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom, 32) }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Progress Header */}
-        <View style={styles.progressContainer}>
+        {/* Progress Bar Header */}
+        <View style={styles.progressSection}>
           <View style={styles.progressHeader}>
             <View style={styles.progressLeft}>
               <View style={styles.stepBadge}>
                 <Text style={styles.stepBadgeText}>2</Text>
               </View>
-              <Text style={styles.stepText}>Step 2 of 2: Movie Vibes</Text>
+              <Text style={styles.stepText}>Step 2 of 2</Text>
             </View>
-            <TouchableOpacity>
-              <Text style={styles.skipText}>Skip for now</Text>
+            <TouchableOpacity activeOpacity={0.8}>
+              <Text style={styles.skipText}>Skip</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.progressBarWrapper}>
@@ -85,38 +106,27 @@ export default function SignupStep2Screen() {
           </View>
         </View>
 
-        {/* Hero Banner */}
+        {/* Welcoming Hero Banner Card */}
         <View style={styles.heroCard}>
-          <View style={styles.heroContent}>
-            <View style={styles.heroTextCol}>
-              <View style={styles.heroBadge}>
-                <MaterialIcons name="auto-awesome" size={14} color="#753400" />
-                <Text style={styles.heroBadgeText}>CURATED SANCTUARY</Text>
-              </View>
-              <Text style={styles.heroTitle}>Tailor your cinema sanctuary ✨</Text>
-              <Text style={styles.heroSubtitle}>
-                Pick your favorite genres and cozy comfort preferences so we can recommend mindful screenings and celebrate your cinema rituals.
-              </Text>
-            </View>
-            <View style={styles.heroIconWrap}>
-              <MaterialIcons name="chair" size={36} color="#ff7a00" />
-            </View>
-          </View>
+          <Text style={styles.heroTitle}>Personalize your experience</Text>
+          <Text style={styles.heroSubtitle}>
+            Select genres and seating defaults for curated recommendations.
+          </Text>
         </View>
 
-        {/* Section 1: Vibes */}
+        {/* Section 1: Genre & Vibe Chips */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <View>
-              <Text style={styles.sectionTitle}>Cinema Moods & Genres</Text>
-              <Text style={styles.sectionSubtitle}>Tap to pick at least 3 favorites</Text>
+              <Text style={styles.sectionTitle}>Favorite Genres</Text>
+              <Text style={styles.sectionSubtitle}>Select at least 3</Text>
             </View>
             <View style={styles.selectionCount}>
               <Text style={styles.selectionCountText}>{selectedVibes.length} selected</Text>
             </View>
           </View>
           <View style={styles.chipsContainer}>
-            {VIBES.map(vibe => {
+            {VIBES_LIST.map(vibe => {
               const isSelected = selectedVibes.includes(vibe.id);
               return (
                 <TouchableOpacity
@@ -125,105 +135,75 @@ export default function SignupStep2Screen() {
                   style={[styles.chip, isSelected ? styles.chipSelected : styles.chipUnselected]}
                   onPress={() => toggleVibe(vibe.id)}
                 >
-                  <Text style={styles.chipEmoji}>{vibe.emoji}</Text>
                   <Text style={[styles.chipText, isSelected ? styles.chipTextSelected : styles.chipTextUnselected]}>
                     {vibe.label}
                   </Text>
-                  {isSelected && <MaterialIcons name="check" size={16} color="#ffffff" style={{ marginLeft: 4 }} />}
+                  {isSelected && <MaterialIcons name="check" size={16} color={isDark ? "#1c1c1e" : "#ffffff"} style={{ marginLeft: 4 }} />}
                 </TouchableOpacity>
               );
             })}
           </View>
         </View>
 
-        {/* Section 2: Comfort */}
+        {/* Section 2: Cinema Comfort Preferences */}
         <View style={styles.section}>
           <View style={styles.sectionHeaderWrap}>
-            <Text style={styles.sectionTitle}>Screening Comfort Preferences</Text>
-            <Text style={styles.sectionSubtitle}>We adapt auditorium selection and seating suggestions</Text>
+            <Text style={styles.sectionTitle}>Seating & Audio</Text>
           </View>
           <View style={styles.prefsContainer}>
             
             <TouchableOpacity style={styles.prefRow} activeOpacity={0.7} onPress={() => togglePref('heated')}>
               <View style={styles.prefContent}>
                 <View style={[styles.prefIconWrap, { backgroundColor: '#ffdbc8' }]}>
-                  <MaterialIcons name="weekend" size={22} color="#753400" />
+                  <MaterialIcons name="weekend" size={20} color="#753400" />
                 </View>
-                <View style={styles.prefTextCol}>
-                  <Text style={styles.prefTitle}>Heated Cloud Lounger Preferred</Text>
-                  <Text style={styles.prefDesc} numberOfLines={1}>Auto-reserve plush ergonomic recliners</Text>
-                </View>
+                <Text style={styles.prefTitle}>Heated Recliners</Text>
               </View>
               <Switch 
                 value={comfortPrefs.heated} 
                 onValueChange={() => togglePref('heated')} 
                 trackColor={{ false: '#e5e2dc', true: '#ff7a00' }}
-                thumbColor="#ffffff"
+                thumbColor={isDark ? "#1c1c1e" : "#ffffff"}
               />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.prefRow} activeOpacity={0.7} onPress={() => togglePref('sensory')}>
               <View style={styles.prefContent}>
                 <View style={[styles.prefIconWrap, { backgroundColor: '#dae2ff' }]}>
-                  <MaterialIcons name="volume-down" size={22} color="#3a4666" />
+                  <MaterialIcons name="volume-down" size={20} color="#3a4666" />
                 </View>
-                <View style={styles.prefTextCol}>
-                  <Text style={styles.prefTitle}>Low-Sensory / Quiet Screenings</Text>
-                  <Text style={styles.prefDesc} numberOfLines={1}>Calibrated decibels & ambient dim lighting</Text>
-                </View>
+                <Text style={styles.prefTitle}>Low-Sensory Audio & Lighting</Text>
               </View>
               <Switch 
                 value={comfortPrefs.sensory} 
                 onValueChange={() => togglePref('sensory')} 
                 trackColor={{ false: '#e5e2dc', true: '#ff7a00' }}
-                thumbColor="#ffffff"
+                thumbColor={isDark ? "#1c1c1e" : "#ffffff"}
               />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.prefRow} activeOpacity={0.7} onPress={() => togglePref('treats')}>
               <View style={styles.prefContent}>
                 <View style={[styles.prefIconWrap, { backgroundColor: '#f0eee8' }]}>
-                  <MaterialIcons name="room-service" size={22} color="#584235" />
+                  <MaterialIcons name="room-service" size={20} color={isDark ? "#a1a1aa" : "#584235"} />
                 </View>
-                <View style={styles.prefTextCol}>
-                  <Text style={styles.prefTitle}>In-Seat Treat Delivery</Text>
-                  <Text style={styles.prefDesc} numberOfLines={1}>Silent snack drop-off prior to previews</Text>
-                </View>
+                <Text style={styles.prefTitle}>In-Seat Delivery</Text>
               </View>
               <Switch 
                 value={comfortPrefs.treats} 
                 onValueChange={() => togglePref('treats')} 
                 trackColor={{ false: '#e5e2dc', true: '#ff7a00' }}
-                thumbColor="#ffffff"
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.prefRow} activeOpacity={0.7} onPress={() => togglePref('cc')}>
-              <View style={styles.prefContent}>
-                <View style={[styles.prefIconWrap, { backgroundColor: '#f0eee8' }]}>
-                  <MaterialIcons name="closed-caption" size={22} color="#584235" />
-                </View>
-                <View style={styles.prefTextCol}>
-                  <Text style={styles.prefTitle}>Accessibility & Closed Captions</Text>
-                  <Text style={styles.prefDesc} numberOfLines={1}>Show screenings with CC and assistive devices</Text>
-                </View>
-              </View>
-              <Switch 
-                value={comfortPrefs.cc} 
-                onValueChange={() => togglePref('cc')} 
-                trackColor={{ false: '#e5e2dc', true: '#ff7a00' }}
-                thumbColor="#ffffff"
+                thumbColor={isDark ? "#1c1c1e" : "#ffffff"}
               />
             </TouchableOpacity>
 
           </View>
         </View>
 
-        {/* Section 3: Home Theater */}
+        {/* Section 3: Home Theater Sanctuary Location */}
         <View style={styles.section}>
           <View style={styles.sectionHeaderWrap}>
-            <Text style={styles.sectionTitle}>Preferred Home Theater</Text>
-            <Text style={styles.sectionSubtitle}>Your default venue for reservations and warm welcomes</Text>
+            <Text style={styles.sectionTitle}>Preferred Theater</Text>
           </View>
           <View style={styles.theaterCard}>
             <View style={styles.theaterHeader}>
@@ -233,65 +213,58 @@ export default function SignupStep2Screen() {
                 </View>
                 <View>
                   <Text style={styles.theaterTitle}>Cinevo Sunset Pavilion</Text>
-                  <Text style={styles.theaterDesc}>Hollywood Hills • 1.2 mi away</Text>
+                  <Text style={styles.theaterDesc}>1.2 mi away</Text>
                 </View>
               </View>
-              <TouchableOpacity style={styles.changeBtn}>
+              <TouchableOpacity activeOpacity={0.8} style={styles.changeBtn}>
                 <Text style={styles.changeBtnText}>Change</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.theaterPerk}>
-              <MaterialIcons name="verified" size={18} color="#ff7a00" />
-              <Text style={styles.theaterPerkText}>Complimentary valet parking & herbal tea lounge included</Text>
+              <MaterialIcons name="verified" size={18} color={isDark ? "#ff8c1a" : "#ff7a00"} />
+              <Text style={styles.theaterPerkText}>Valet parking included</Text>
             </View>
           </View>
         </View>
 
-        {/* Section 4: Birthday Perk */}
+        {/* Section 4: Birthday Perk Card */}
         <View style={styles.birthdayCard}>
           <View style={styles.birthdayHeader}>
             <View style={styles.birthdayIconWrap}>
-              <Text style={styles.birthdayEmoji}>🎂</Text>
+              <MaterialIcons name="cake" size={20} color={isDark ? "#e2e8f0" : "#0d1a38"} />
             </View>
             <View>
-              <Text style={styles.birthdayTitle}>Birthday Cinema Treat</Text>
-              <Text style={styles.birthdayDesc}>A cozy tradition on your special day</Text>
+              <Text style={styles.birthdayTitle}>Birthday Month</Text>
+              <Text style={styles.birthdayDesc}>Popcorn perk on your month</Text>
             </View>
           </View>
-          
-          <View style={styles.birthdayPickerWrap}>
-            <View style={styles.birthdayPickerLabel}>
-              <MaterialIcons name="calendar-today" size={20} color="#525e7f" />
-              <Text style={styles.birthdayPickerLabelText}>Birthday Month:</Text>
-            </View>
-            <TouchableOpacity 
-              style={styles.birthdayPickerBtn}
-              activeOpacity={0.8}
-              onPress={() => setShowMonthPicker(true)}
-            >
-              <Text style={styles.birthdayPickerBtnText}>{birthdayMonth}</Text>
-              <MaterialIcons name="expand-more" size={18} color="#525e7f" />
-            </TouchableOpacity>
-          </View>
-          
-          <View style={styles.birthdayPerkDesc}>
-            <MaterialIcons name="redeem" size={18} color="#ff7a00" style={{ marginTop: 2 }} />
-            <Text style={styles.birthdayPerkDescText}>
-              We'll send a voucher for complimentary artisan organic salted-caramel popcorn on the 1st of {birthdayMonth}!
-            </Text>
-          </View>
+          <TouchableOpacity 
+            style={styles.birthdayPickerBtn}
+            activeOpacity={0.8}
+            onPress={() => setShowMonthPicker(true)}
+          >
+            <Text style={styles.birthdayPickerBtnText}>{birthdayMonth}</Text>
+            <MaterialIcons name="expand-more" size={18} color={isDark ? "#94a3b8" : "#525e7f"} />
+          </TouchableOpacity>
         </View>
 
-        {/* Bottom Actions */}
+        {/* Bottom Sticky Actions Area */}
         <View style={styles.bottomActions}>
-          <TouchableOpacity style={styles.completeBtn} activeOpacity={0.8} onPress={() => router.replace('/(tabs)')}>
-            <Text style={styles.completeBtnText}>Complete Setup & Enter Cinevo</Text>
-            <MaterialIcons name="arrow-forward" size={20} color="#ffffff" />
+          {error ? (
+            <View style={styles.errorContainer}>
+              <MaterialIcons name="error-outline" size={16} color={isDark ? "#ff897d" : "#ba1a1a"} />
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          ) : null}
+          <TouchableOpacity 
+            style={[styles.completeBtn, selectedVibes.length < 3 && styles.completeBtnDisabled]} 
+            activeOpacity={0.8} 
+            onPress={handleComplete}
+          >
+            <Text style={styles.completeBtnText}>Complete Setup</Text>
+            <MaterialIcons name="arrow-forward" size={20} color={isDark ? "#1c1c1e" : "#ffffff"} />
           </TouchableOpacity>
-          <View style={styles.bottomHint}>
-            <MaterialIcons name="tune" size={16} color="#584235" />
-            <Text style={styles.bottomHintText}>You can customize your vibe preferences anytime in Settings</Text>
-          </View>
+          <Text style={styles.bottomHintText}>You can change these anytime in Settings.</Text>
         </View>
 
       </ScrollView>
@@ -311,7 +284,7 @@ export default function SignupStep2Screen() {
           <View style={styles.modalContent}>
             <ScrollView style={{ maxHeight: 400 }}>
               {MONTHS.map((month) => (
-                <TouchableOpacity
+                <TouchableOpacity activeOpacity={0.8}
                   key={month}
                   style={styles.modalOption}
                   onPress={() => {
@@ -328,7 +301,7 @@ export default function SignupStep2Screen() {
                     {month}
                   </Text>
                   {birthdayMonth === month && (
-                    <MaterialIcons name="check" size={18} color="#994700" />
+                    <MaterialIcons name="check" size={18} color={isDark ? "#ffb370" : "#994700"} />
                   )}
                 </TouchableOpacity>
               ))}
@@ -341,13 +314,13 @@ export default function SignupStep2Screen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fcf9f3',
+    backgroundColor: (isDark ? '#121212' : '#fcf9f3'),
   },
   safeHeader: {
-    backgroundColor: 'rgba(252, 249, 243, 0.8)',
+    backgroundColor: (isDark ? 'rgba(18, 18, 18, 0.8)' : 'rgba(252, 249, 243, 0.8)'),
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.04)',
     zIndex: 50,
@@ -371,7 +344,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
     fontWeight: '700',
-    color: '#1c1c18',
+    color: (isDark ? '#ffffff' : '#1c1c18'),
   },
   profileWrapper: {
     width: 44,
@@ -383,7 +356,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#994700',
+    backgroundColor: (isDark ? '#ffb370' : '#994700'),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -392,14 +365,15 @@ const styles = StyleSheet.create({
     paddingTop: 12,
   },
   // Progress Header
-  progressContainer: {
+  progressSection: {
+    paddingTop: 12,
+    gap: 8,
     marginBottom: 24,
   },
   progressHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
   },
   progressLeft: {
     flexDirection: 'row',
@@ -410,7 +384,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#ff7a00',
+    backgroundColor: (isDark ? '#ff8c1a' : '#ff7a00'),
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -422,30 +396,31 @@ const styles = StyleSheet.create({
   stepBadgeText: {
     fontSize: 11,
     fontWeight: '800',
-    color: '#ffffff',
+    color: (isDark ? '#1c1c1e' : '#ffffff'),
   },
   stepText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1c1c18',
+    color: (isDark ? '#ffffff' : '#1c1c18'),
   },
   skipText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#525e7f',
+    color: (isDark ? '#94a3b8' : '#525e7f'),
   },
   progressBarWrapper: {
     flexDirection: 'row',
     gap: 8,
+    paddingTop: 4,
   },
   progressBarActive: {
     flex: 1,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#ff7a00',
+    backgroundColor: (isDark ? '#ff8c1a' : '#ff7a00'),
   },
   progressBarGlow: {
-    shadowColor: '#ff7a00',
+    shadowColor: (isDark ? '#ff8c1a' : '#ff7a00'),
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.35,
     shadowRadius: 8,
@@ -453,60 +428,25 @@ const styles = StyleSheet.create({
   },
   // Hero Banner
   heroCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: (isDark ? '#1c1c1e' : '#ffffff'),
     borderRadius: 32,
-    padding: 20,
+    padding: 16,
     marginBottom: 24,
     shadowColor: '#2e3a59',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.03,
     shadowRadius: 8,
     elevation: 2,
-  },
-  heroContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: 12,
-  },
-  heroTextCol: {
-    flex: 1,
-    gap: 12,
-  },
-  heroBadge: {
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#ffdbc8',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 999,
     gap: 4,
-  },
-  heroBadgeText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#753400',
-    letterSpacing: 0.6,
   },
   heroTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1c1c18',
-    lineHeight: 32,
+    color: (isDark ? '#ffffff' : '#1c1c18'),
   },
   heroSubtitle: {
     fontSize: 13,
-    color: '#584235',
-    lineHeight: 20,
-  },
-  heroIconWrap: {
-    width: 64,
-    height: 64,
-    borderRadius: 16,
-    backgroundColor: '#f0eee8',
-    alignItems: 'center',
-    justifyContent: 'center',
+    color: (isDark ? '#a1a1aa' : '#584235'),
   },
   // Sections common
   section: {
@@ -524,15 +464,15 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1c1c18',
+    color: (isDark ? '#ffffff' : '#1c1c18'),
     marginBottom: 2,
   },
   sectionSubtitle: {
     fontSize: 13,
-    color: '#584235',
+    color: (isDark ? '#a1a1aa' : '#584235'),
   },
   selectionCount: {
-    backgroundColor: '#dae2ff',
+    backgroundColor: (isDark ? '#1d2a4a' : '#dae2ff'),
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 999,
@@ -556,7 +496,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   chipSelected: {
-    backgroundColor: '#ff7a00',
+    backgroundColor: (isDark ? '#ff8c1a' : '#ff7a00'),
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -564,7 +504,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   chipUnselected: {
-    backgroundColor: '#ffffff',
+    backgroundColor: (isDark ? '#1c1c1e' : '#ffffff'),
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.03,
@@ -579,10 +519,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   chipTextSelected: {
-    color: '#ffffff',
+    color: (isDark ? '#1c1c1e' : '#ffffff'),
   },
   chipTextUnselected: {
-    color: '#1c1c18',
+    color: (isDark ? '#ffffff' : '#1c1c18'),
   },
   // Comfort Prefs
   prefsContainer: {
@@ -592,7 +532,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#ffffff',
+    backgroundColor: (isDark ? '#1c1c1e' : '#ffffff'),
     padding: 16,
     borderRadius: 16,
     shadowColor: '#2e3a59',
@@ -621,16 +561,16 @@ const styles = StyleSheet.create({
   prefTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1c1c18',
+    color: (isDark ? '#ffffff' : '#1c1c18'),
   },
   prefDesc: {
     fontSize: 13,
-    color: '#584235',
+    color: (isDark ? '#a1a1aa' : '#584235'),
     marginTop: 2,
   },
   // Home Theater
   theaterCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: (isDark ? '#1c1c1e' : '#ffffff'),
     borderRadius: 16,
     padding: 16,
     shadowColor: '#2e3a59',
@@ -654,21 +594,21 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#ffdbc8',
+    backgroundColor: (isDark ? '#4a2e1b' : '#ffdbc8'),
     alignItems: 'center',
     justifyContent: 'center',
   },
   theaterTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1c1c18',
+    color: (isDark ? '#ffffff' : '#1c1c18'),
   },
   theaterDesc: {
     fontSize: 13,
-    color: '#584235',
+    color: (isDark ? '#a1a1aa' : '#584235'),
   },
   changeBtn: {
-    backgroundColor: '#f0eee8',
+    backgroundColor: (isDark ? '#2c2c2e' : '#f0eee8'),
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 999,
@@ -676,25 +616,25 @@ const styles = StyleSheet.create({
   changeBtnText: {
     fontSize: 11,
     fontWeight: '800',
-    color: '#525e7f',
+    color: (isDark ? '#94a3b8' : '#525e7f'),
   },
   theaterPerk: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#f6f3ed',
+    backgroundColor: (isDark ? '#1c1c1e' : '#f6f3ed'),
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 12,
   },
   theaterPerkText: {
     fontSize: 13,
-    color: '#584235',
+    color: (isDark ? '#a1a1aa' : '#584235'),
     flex: 1,
   },
   // Birthday
   birthdayCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: (isDark ? '#1c1c1e' : '#ffffff'),
     borderRadius: 16,
     padding: 20,
     shadowColor: '#2e3a59',
@@ -714,7 +654,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 16,
-    backgroundColor: '#dae2ff',
+    backgroundColor: (isDark ? '#1d2a4a' : '#dae2ff'),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -724,17 +664,17 @@ const styles = StyleSheet.create({
   birthdayTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1c1c18',
+    color: (isDark ? '#ffffff' : '#1c1c18'),
   },
   birthdayDesc: {
     fontSize: 13,
-    color: '#584235',
+    color: (isDark ? '#a1a1aa' : '#584235'),
   },
   birthdayPickerWrap: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#f0eee8',
+    backgroundColor: (isDark ? '#2c2c2e' : '#f0eee8'),
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 999,
@@ -747,13 +687,13 @@ const styles = StyleSheet.create({
   birthdayPickerLabelText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1c1c18',
+    color: (isDark ? '#ffffff' : '#1c1c18'),
   },
   birthdayPickerBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#ffffff',
+    backgroundColor: (isDark ? '#1c1c1e' : '#ffffff'),
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 999,
@@ -766,7 +706,7 @@ const styles = StyleSheet.create({
   birthdayPickerBtnText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1c1c18',
+    color: (isDark ? '#ffffff' : '#1c1c18'),
   },
   birthdayPerkDesc: {
     flexDirection: 'row',
@@ -777,7 +717,7 @@ const styles = StyleSheet.create({
   birthdayPerkDescText: {
     flex: 1,
     fontSize: 13,
-    color: '#584235',
+    color: (isDark ? '#a1a1aa' : '#584235'),
     lineHeight: 20,
   },
   // Bottom Actions
@@ -790,13 +730,13 @@ const styles = StyleSheet.create({
   completeBtn: {
     width: '100%',
     height: 52,
-    backgroundColor: '#ff7a00',
+    backgroundColor: (isDark ? '#ff8c1a' : '#ff7a00'),
     borderRadius: 999,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    shadowColor: '#ff7a00',
+    shadowColor: (isDark ? '#ff8c1a' : '#ff7a00'),
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.4,
     shadowRadius: 20,
@@ -805,7 +745,10 @@ const styles = StyleSheet.create({
   completeBtnText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#ffffff',
+    color: (isDark ? '#1c1c1e' : '#ffffff'),
+  },
+  completeBtnDisabled: {
+    backgroundColor: (isDark ? 'rgba(255, 140, 26, 0.5)' : 'rgba(255, 122, 0, 0.5)'),
   },
   bottomHint: {
     flexDirection: 'row',
@@ -814,7 +757,22 @@ const styles = StyleSheet.create({
   },
   bottomHintText: {
     fontSize: 13,
-    color: '#584235',
+    color: (isDark ? '#a1a1aa' : '#584235'),
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: (isDark ? '#410002' : '#ffdad6'),
+    padding: 12,
+    borderRadius: 8,
+    gap: 8,
+    width: '100%',
+  },
+  errorText: {
+    color: (isDark ? '#ffb4ab' : '#93000a'),
+    fontSize: 13,
+    fontWeight: '600',
+    flex: 1,
   },
   // Modal
   modalOverlay: {
@@ -825,7 +783,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   modalContent: {
-    backgroundColor: "#ffffff",
+    backgroundColor: (isDark ? "#1c1c1e" : "#ffffff"),
     borderRadius: 24,
     width: "100%",
     maxWidth: 320,
@@ -846,10 +804,10 @@ const styles = StyleSheet.create({
   },
   modalOptionText: {
     fontSize: 16,
-    color: "#1c1c18",
+    color: (isDark ? "#ffffff" : "#1c1c18"),
   },
   modalOptionTextActive: {
     fontWeight: "700",
-    color: "#994700",
+    color: (isDark ? "#ffb370" : "#994700"),
   },
 });

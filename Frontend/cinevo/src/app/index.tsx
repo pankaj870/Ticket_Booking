@@ -1,3 +1,4 @@
+import { useColorScheme } from 'react-native';
 import React, { useState } from "react";
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -10,6 +11,10 @@ import { FeatureCarousel } from "../components/onboarding/FeatureCarousel";
 import { Actions } from "../components/onboarding/Actions";
 
 export default function HomeScreen() {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const styles = getStyles(isDark);
+
   const [showSplash, setShowSplash] = useState(true);
 
   if (showSplash) {
@@ -32,10 +37,10 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fcf9f3",
+    backgroundColor: (isDark ? "#121212" : "#fcf9f3"),
   },
   scrollContent: {
     paddingHorizontal: 16,

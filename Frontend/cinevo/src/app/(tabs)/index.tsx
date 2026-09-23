@@ -1,921 +1,959 @@
-import React from 'react';
-import { StyleSheet, View, Text, ScrollView, TextInput, TouchableOpacity, Image } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useColorScheme } from 'react-native';
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  Platform,
+} from "react-native";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
 export default function DiscoverScreen() {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const styles = getStyles(isDark);
+
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const [activeMood, setActiveMood] = useState("Feel Good");
+  const [activeFormat, setActiveFormat] = useState("All Formats");
+
+  const moodChips = [
+    { label: "Feel Good", icon: "sentiment-satisfied" },
+    { label: "Sci-Fi Wonder", icon: "rocket-launch" },
+    { label: "Studio Ghibli", icon: "nature-people" },
+    { label: "IMAX 70mm", icon: "aspect-ratio" },
+    { label: "Documentaries", icon: "movie-filter" },
+  ];
+
+  const formatTabs = ["All Formats", "IMAX Cozy", "Standard 2D", "Dolby Atmos"];
 
   return (
     <View style={styles.container}>
       {/* Header */}
-      <SafeAreaView edges={['top']} style={styles.safeHeader}>
+      <SafeAreaView edges={["top"]} style={styles.safeHeader}>
         <View style={styles.header}>
-          <View style={styles.headerBrand}>
+          <View style={styles.headerLeft}>
             <View style={styles.brandIconWrap}>
-              <MaterialIcons name="movie" size={22} color="#ffffff" />
+              <MaterialIcons name="movie" size={20} color={isDark ? "#ff8c1a" : "#ff7a00"} />
             </View>
-            <View>
-              <View style={styles.greetingRow}>
-                <Text style={styles.greetingText}>GOOD DAY, ALEX</Text>
-                <Text style={styles.waveEmoji}>☀️</Text>
-              </View>
-              <Text style={styles.brandTitle}>Movie Time</Text>
-            </View>
+            <Text style={styles.headerTitle}>Discover</Text>
           </View>
           <View style={styles.headerActions}>
             <TouchableOpacity style={styles.notifBtn} activeOpacity={0.7}>
-              <MaterialIcons name="notifications" size={20} color="#2D2B2A" />
+              <MaterialIcons name="notifications" size={22} color={isDark ? "#a1a1aa" : "#584235"} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.profileBtn} activeOpacity={0.8}>
-              <Text style={styles.profileBtnText}>AL</Text>
-            </TouchableOpacity>
+            <View style={styles.profileBtn}>
+              <MaterialIcons name="person" size={18} color={isDark ? "#1c1c1e" : "#ffffff"} />
+            </View>
           </View>
         </View>
       </SafeAreaView>
 
-      <ScrollView 
-        contentContainerStyle={[styles.content, { paddingBottom: 100 }]}
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: Math.max(insets.bottom, 120) },
+        ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Location & Search */}
         <View style={styles.topSection}>
-          <View style={styles.locationRow}>
-            <View style={styles.locationLeft}>
-              <View style={styles.locationIconWrap}>
-                <MaterialIcons name="location-on" size={16} color="#FF7A00" />
-              </View>
-              <Text style={styles.locationText} numberOfLines={1}>Shibuya IMAX Theatre</Text>
-            </View>
-            <TouchableOpacity style={styles.changeLocBtn}>
-              <Text style={styles.changeLocText}>Change</Text>
-              <MaterialIcons name="expand-more" size={16} color="#FF7A00" />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.searchBar}>
-            <MaterialIcons name="search" size={22} color="#6E6966" style={{ marginRight: 10 }} />
-            <TextInput 
-              style={styles.searchInput}
-              placeholder="Search relaxing films, theaters, genres..."
-              placeholderTextColor="#9C948D"
+          {/* Search */}
+          <View style={styles.searchWrapper}>
+            <MaterialIcons
+              name="search"
+              size={22}
+              color={isDark ? "#ffb370" : "#994700"}
+              style={styles.searchIcon}
             />
-            <TouchableOpacity style={styles.filterBtn}>
-              <MaterialIcons name="tune" size={18} color="#6E6966" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search movies, genres, theaters..."
+              placeholderTextColor="rgba(88, 66, 53, 0.7)"
+            />
+            <TouchableOpacity activeOpacity={0.8} style={styles.filterBtn}>
+              <MaterialIcons name="tune" size={20} color={isDark ? "#ffb370" : "#994700"} />
             </TouchableOpacity>
+          </View>
+
+          {/* Browse by Mood */}
+          <View style={styles.moodSection}>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionOverline}>BROWSE BY MOOD</Text>
+              <TouchableOpacity activeOpacity={0.8} style={styles.resetBtn}>
+                <Text style={styles.resetBtnText}>Reset</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.moodScroll}
+            >
+              {moodChips.map((chip, idx) => {
+                const isActive = activeMood === chip.label;
+                return (
+                  <TouchableOpacity activeOpacity={0.8}
+                    key={idx}
+                    style={[
+                      styles.moodChip,
+                      isActive
+                        ? styles.moodChipActive
+                        : styles.moodChipInactive,
+                    ]}
+                    onPress={() => setActiveMood(chip.label)}
+                  >
+                    <MaterialIcons
+                      name={chip.icon as any}
+                      size={16}
+                      color={isActive ? "#ffffff" : "#584235"}
+                    />
+                    <Text
+                      style={[
+                        styles.moodChipText,
+                        isActive
+                          ? styles.moodChipTextActive
+                          : styles.moodChipTextInactive,
+                      ]}
+                    >
+                      {chip.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+
+          {/* Format Tabs */}
+          <View style={styles.formatTabsWrapper}>
+            {formatTabs.map((tab, idx) => {
+              const isActive = activeFormat === tab;
+              return (
+                <TouchableOpacity activeOpacity={0.8}
+                  key={idx}
+                  style={[styles.formatTab, isActive && styles.formatTabActive]}
+                  onPress={() => setActiveFormat(tab)}
+                >
+                  <Text
+                    style={[
+                      styles.formatTabText,
+                      isActive
+                        ? styles.formatTabTextActive
+                        : styles.formatTabTextInactive,
+                    ]}
+                  >
+                    {tab}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
 
-        {/* Category Pills */}
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false} 
-          contentContainerStyle={styles.categoryScroll}
-          style={styles.categoryScrollContainer}
-        >
-          <TouchableOpacity style={[styles.catPill, styles.catPillActive]}>
-            <MaterialIcons name="local-fire-department" size={16} color="#ffffff" />
-            <Text style={[styles.catPillText, styles.catPillTextActive]}>Now Showing</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={[styles.catPill, styles.catPillOutline]}>
-            <View style={styles.dotIndicator} />
-            <Text style={styles.catPillText}>Coming Soon</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.catPill, { backgroundColor: 'rgba(225, 240, 255, 0.6)', borderColor: '#bfdbfe' }]}>
-            <MaterialIcons name="stars" size={16} color="#1E5699" />
-            <Text style={[styles.catPillText, { color: '#1E5699' }]}>IMAX 70mm</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.catPill, { backgroundColor: 'rgba(255, 241, 194, 0.7)', borderColor: '#fde68a' }]}>
-            <MaterialIcons name="sentiment-satisfied" size={16} color="#7A5B00" />
-            <Text style={[styles.catPillText, { color: '#7A5B00' }]}>Family & Kids</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.catPill, { backgroundColor: 'rgba(226, 246, 238, 0.8)', borderColor: '#a7f3d0' }]}>
-            <MaterialIcons name="favorite" size={16} color="#1D6C4A" />
-            <Text style={[styles.catPillText, { color: '#1D6C4A' }]}>Indie & Docs</Text>
-          </TouchableOpacity>
-        </ScrollView>
-
-        {/* Spotlight Hero Movie */}
-        <View style={styles.heroSection}>
-          <View style={styles.heroCard}>
-            <View style={styles.heroPosterWrap}>
-              <Image 
-                source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBNi7SzT5rhRx0kp_scbns7XgE2X7eqhOBv1HoNieWlzqlMoz0hrKZbTUvmVcwd1ibiLS1erpwQkx0rIsvoRHm5Z7VaGvqrmkhSfmJtkhvpzQobHVlJJKJUxHLV0jIihFtepQeBV5sLTqFURqa_sKgcbwzuJHSZTqZTkAD0GeFXgT5RqJ4YFi34xm6Tpe6DfHwN8-pAWueI-aC1tMiMwmnZkvrup7qF-ZyuCCkr-l-rokoalmbelBL5' }}
-                style={styles.heroPoster}
-              />
-              
-              <View style={styles.heroTopLeftBadges}>
-                <View style={styles.badgeWhite}>
-                  <MaterialIcons name="star" size={14} color="#f59e0b" />
-                  <Text style={styles.badgeWhiteText}>9.4</Text>
-                </View>
-                <View style={styles.badgeWhite}>
-                  <Text style={styles.badgeWhiteMuted}>PG-13</Text>
-                </View>
-              </View>
-
-              <View style={styles.heroTopRightBadge}>
-                <Text style={styles.badgeYellowText}>IMAX 70MM</Text>
-              </View>
-
-              <View style={styles.heroBottomBadges}>
-                <View style={styles.badgeWhite}>
-                  <Text style={styles.badgeWhiteOrange}>Sci-Fi Adventure</Text>
-                </View>
-                <View style={styles.badgeWhite}>
-                  <Text style={styles.badgeWhiteMuted}>Cyberpunk</Text>
-                </View>
-              </View>
-            </View>
-
-            <View style={styles.heroInfo}>
-              <View style={styles.heroTitleRow}>
-                <Text style={styles.heroTitle}>Neo Tokyo 2099</Text>
-                <View style={styles.durationBadge}>
-                  <Text style={styles.durationText}>2h 42m</Text>
-                </View>
-              </View>
-              <Text style={styles.heroDesc}>
-                A soulful journey through Shibuya's cybernetic underworld to protect a sleeping world from a complete power blackout.
-              </Text>
-            </View>
-
-            <View style={styles.showtimesStrip}>
-              <View style={styles.showtimesHeader}>
-                <MaterialIcons name="schedule" size={18} color="#FF7A00" />
-                <Text style={styles.showtimesTitle}>Available Today:</Text>
-              </View>
-              <View style={styles.showtimesTimes}>
-                <TouchableOpacity style={styles.timeBtnOutline}>
-                  <Text style={styles.timeBtnOutlineText}>17:45</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.timeBtnActive}>
-                  <Text style={styles.timeBtnActiveText}>20:15</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.timeBtnOutline}>
-                  <Text style={styles.timeBtnOutlineText}>22:50</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            <TouchableOpacity style={styles.bookBtn} activeOpacity={0.8} onPress={() => router.push('/movie-details')}>
-              <MaterialIcons name="confirmation-number" size={20} color="#ffffff" />
-              <Text style={styles.bookBtnText}>BOOK TICKETS</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Promo Banner */}
-        <View style={styles.promoSection}>
-          <View style={styles.promoCard}>
-            <View style={styles.promoLeft}>
-              <View style={styles.promoIconWrap}>
-                <MaterialIcons name="bakery-dining" size={26} color="#FF7A00" />
-              </View>
-              <View>
-                <Text style={styles.promoBadgeText}>COZY PAIR DEAL</Text>
-                <Text style={styles.promoTitle}>Duo Tickets & Matcha Popcorn</Text>
-                <Text style={styles.promoDesc}>Save 25% on couples lounge seats</Text>
-              </View>
-            </View>
-            <TouchableOpacity style={styles.promoBtn}>
-              <MaterialIcons name="arrow-forward" size={18} color="#2D2B2A" />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Curated Section */}
+        {/* Curated List */}
         <View style={styles.curatedSection}>
-          <View style={styles.curatedHeader}>
-            <View style={styles.curatedHeaderLeft}>
+          <View style={styles.curatedHeaderRow}>
+            <View style={styles.curatedTitleWrap}>
               <View style={styles.curatedDot} />
-              <Text style={styles.curatedTitle}>Curated For You</Text>
+              <Text style={styles.curatedTitle}>Curated For You Today</Text>
             </View>
-            <TouchableOpacity style={styles.seeAllBtn}>
-              <Text style={styles.seeAllText}>See all (18)</Text>
-              <MaterialIcons name="chevron-right" size={16} color="#FF7A00" />
-            </TouchableOpacity>
+            <Text style={styles.curatedSubtitle}>4 Peaceful Picks</Text>
           </View>
 
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.curatedScroll}
+          {/* Movie Card 1 */}
+          <TouchableOpacity activeOpacity={0.8}
+            style={styles.movieCard}
+            onPress={() => router.push("/movie-details")}
+            activeOpacity={0.9}
           >
-            {/* Movie 1 */}
-            <View style={styles.movieCard}>
-              <View style={[styles.moviePosterWrap, { backgroundColor: 'rgba(225, 240, 255, 0.3)' }]}>
-                <Image 
-                  source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA6sYOZRiLAxdPeArmeBYi8kZhZLF1PQLKBzCuSx-zpRFSAfoDjHVzTga916-lK5eB2F-IvjcZZX6ahv-kDwWcinEmKgOP2mR3j_iviyyz_gcZlRXGz9JaIdJW4uHEkX5xlfOWydB4fxxVHwGuAVRoqCYa1a-T3uGfSNkGxmuuds-ATdJDEOoWHPIS4-dGDcAmZHVEacblNLBDqhyIgRJVF_KNGCYpR3cUzTdhmbbjvyeHNHsFHy_6F' }}
-                  style={styles.moviePoster}
+            <View style={styles.posterWrapper}>
+              <Image
+                source={{
+                  uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuCkZHMvFBLIzOxJszcH-oYygXdvtOk5RhJ9tTPDEiJitN59aoXOeeVUAC7XpKTeUhbxuiiKFq7qnmFR4CEeK1g7odl9-L2RGp2CVIhZ3YRrJed1Pyr7r6kG85Bi71wnia__Gi8A1xbpUx5vw4IcFnEPGOMGxeuQPHULxPHp63omdXcbcyCehU4U8oIcAk2PW2Q-kk96lR9LIGXeNgjRy9Hvopo8Jqjwr4DPIgSyAEhsVoEvFb4mezK6",
+                }}
+                style={styles.posterImage}
+              />
+              <View style={styles.posterTopLeft}>
+                <View style={styles.ratingBadge}>
+                  <MaterialIcons name="star" size={14} color={isDark ? "#ffb370" : "#994700"} />
+                  <Text style={styles.ratingText}>9.4</Text>
+                </View>
+                <View style={styles.formatBadge}>
+                  <Text style={styles.formatBadgeText}>IMAX Cozy</Text>
+                </View>
+              </View>
+              <TouchableOpacity activeOpacity={0.8} style={styles.bookmarkBtn}>
+                <MaterialIcons
+                  name="favorite-border"
+                  size={18}
+                  color={isDark ? "#a1a1aa" : "#584235"}
                 />
-                <View style={styles.cardTopBadge}>
-                  <MaterialIcons name="star" size={13} color="#f59e0b" />
-                  <Text style={styles.cardBadgeText}>8.9</Text>
-                </View>
-                <View style={styles.cardBottomBadgeDolby}>
-                  <Text style={styles.cardBadgeTextDolby}>DOLBY ATMOS</Text>
-                </View>
-              </View>
-              <View style={styles.movieInfo}>
-                <Text style={styles.movieTitle} numberOfLines={1}>Project Aegis: Zero</Text>
-                <View style={styles.movieMeta}>
-                  <Text style={styles.movieMetaText}>Action • Mecha</Text>
-                  <Text style={styles.movieMetaTime}>1h 54m</Text>
-                </View>
-              </View>
-              <View style={styles.movieTimes}>
-                <TouchableOpacity style={styles.smallTimeBtn}><Text style={styles.smallTimeBtnText}>16:20</Text></TouchableOpacity>
-                <TouchableOpacity style={styles.smallTimeBtn}><Text style={styles.smallTimeBtnText}>19:00</Text></TouchableOpacity>
-                <TouchableOpacity style={styles.smallTimeBtn}><Text style={styles.smallTimeBtnText}>21:30</Text></TouchableOpacity>
-              </View>
+              </TouchableOpacity>
             </View>
 
-            {/* Movie 2 */}
-            <View style={styles.movieCard}>
-              <View style={[styles.moviePosterWrap, { backgroundColor: 'rgba(255, 241, 194, 0.3)' }]}>
-                <Image 
-                  source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCn-TZL8iqunWAtJ8O824lf6D1ugrEtC8CuCeA8LaDKI7YEj2sLw8a5bEUs9_DeOneUaYgTgECQSXoGxe4CrhlGv0gEuJqCH7fNYNss8h61r5NZMGjg_FI2M0nnlixWU0JNoxWkOwDxsIt00l-HoPV5-gTCYoo5eCZ3SDfXEgSaRV8VGLvD2JRe75FQSJZMtFOzOX1NkeBrFSp2KGkHNwI6fh6nYpX4hyPnv-TTFGvSG0Xw6Pr6OMqC' }}
-                  style={styles.moviePoster}
-                />
-                <View style={styles.cardTopBadge}>
-                  <MaterialIcons name="star" size={13} color="#f59e0b" />
-                  <Text style={styles.cardBadgeText}>9.1</Text>
+            <View style={styles.movieInfo}>
+              <View style={styles.movieMetaTop}>
+                <View style={styles.titleRow}>
+                  <Text style={styles.movieTitle}>Neo Tokyo 2099</Text>
+                  <Text style={styles.durationText}>2h 14m</Text>
                 </View>
-                <View style={styles.cardBottomBadgeImax}>
-                  <Text style={styles.cardBadgeTextImax}>IMAX 3D</Text>
-                </View>
-              </View>
-              <View style={styles.movieInfo}>
-                <Text style={styles.movieTitle} numberOfLines={1}>Orbital Silence</Text>
-                <View style={styles.movieMeta}>
-                  <Text style={styles.movieMetaText}>Hard Sci-Fi</Text>
-                  <Text style={styles.movieMetaTime}>2h 18m</Text>
+                <View style={styles.tagsRow}>
+                  <View style={styles.tagBadge}>
+                    <Text style={styles.tagBadgeText}>Sci-Fi Anime</Text>
+                  </View>
+                  <View style={styles.tagBadge}>
+                    <Text style={styles.tagBadgeText}>Mindful Journey</Text>
+                  </View>
+                  <Text style={styles.hallText}>• Cinema Hall 4</Text>
                 </View>
               </View>
-              <View style={styles.movieTimes}>
-                <TouchableOpacity style={styles.smallTimeBtn}><Text style={styles.smallTimeBtnText}>14:40</Text></TouchableOpacity>
-                <TouchableOpacity style={styles.smallTimeBtn}><Text style={styles.smallTimeBtnText}>18:15</Text></TouchableOpacity>
-                <TouchableOpacity style={styles.smallTimeBtn}><Text style={styles.smallTimeBtnText}>21:00</Text></TouchableOpacity>
+
+              <View style={styles.screeningsBlock}>
+                <Text style={styles.screeningsOverline}>
+                  TODAY'S SCREENINGS
+                </Text>
+                <View style={styles.timeChipsRow}>
+                  <TouchableOpacity activeOpacity={0.8} style={styles.timeChipActive}>
+                    <Text style={styles.timeChipTextActive}>14:15</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity activeOpacity={0.8} style={styles.timeChipInactive}>
+                    <Text style={styles.timeChipTextInactive}>17:45</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity activeOpacity={0.8} style={styles.timeChipInactive}>
+                    <Text style={styles.timeChipTextInactive}>20:30</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={styles.bookingRow}>
+                <View>
+                  <Text style={styles.ticketTypeText}>Standard Ticket</Text>
+                  <Text style={styles.priceText}>$16.50</Text>
+                </View>
+                <TouchableOpacity activeOpacity={0.8}
+                  style={styles.bookBtn}
+                  onPress={() => router.push("/select-seats")}
+                >
+                  <Text style={styles.bookBtnText}>Book Spot</Text>
+                  <MaterialIcons
+                    name="arrow-forward"
+                    size={18}
+                    color={isDark ? "#1c1c1e" : "#ffffff"}
+                  />
+                </TouchableOpacity>
               </View>
             </View>
+          </TouchableOpacity>
 
-            {/* Movie 3 */}
-            <View style={styles.movieCard}>
-              <View style={[styles.moviePosterWrap, { backgroundColor: 'rgba(226, 246, 238, 0.3)' }]}>
-                <Image 
-                  source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA9jfTimwDv8K15bGqu0tkdXVEY4FMnTc5t0eciE5s1FnYVg-MO3ZCJbO7q7vLDQTyWgrfINrk7jQTFFLDZ5wYKnZ-FA4Osgyea2xeYEQEgd11pAK5epG2a3AJdeOfuM9_NfbVv9wsXgDLYR58d9stWE9l-cbXQIt-ayLfU4NCGpHnWbFZX2d5XtS9B0KxUfS1zxqmben8giGps8mYoq19ketMYTaRVfj4U_ZJIEp84Pyd1hMl1rGK2' }}
-                  style={styles.moviePoster}
+          {/* Movie Card 2 */}
+          <TouchableOpacity activeOpacity={0.8}
+            style={styles.movieCard}
+            onPress={() => router.push("/movie-details")}
+            activeOpacity={0.9}
+          >
+            <View style={styles.posterWrapper}>
+              <Image
+                source={{
+                  uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuB7-Z44sUA67HdB4A8g0YbCZfzvV7ITs2U2pON9wtq9Kl9zSudzWoBcJxGH_RTRbzt6pYNr62fQyFvgGtu9sruVTu7kwZxDqpepZkaVCTPi9Z321llkFuAgVnUhBf9qAkAAwoTie4ixB8xgIub9nVoCLuPLcRv0h9QXiTlveS-MXjrzCHRQ-DFqxiO7Na70wC3HXqUDe5UrVQNOWgbF88YXrpNZzWU6EhxZWkVqnlV1GREgtjISTU0C",
+                }}
+                style={styles.posterImage}
+              />
+              <View style={styles.posterTopLeft}>
+                <View style={styles.ratingBadge}>
+                  <MaterialIcons name="star" size={14} color={isDark ? "#ffb370" : "#994700"} />
+                  <Text style={styles.ratingText}>9.1</Text>
+                </View>
+                <View style={styles.formatBadge}>
+                  <Text style={styles.formatBadgeText}>Dolby Atmos</Text>
+                </View>
+              </View>
+              <TouchableOpacity activeOpacity={0.8} style={styles.bookmarkBtn}>
+                <MaterialIcons
+                  name="favorite-border"
+                  size={18}
+                  color={isDark ? "#a1a1aa" : "#584235"}
                 />
-                <View style={styles.cardTopBadge}>
-                  <MaterialIcons name="star" size={13} color="#f59e0b" />
-                  <Text style={styles.cardBadgeText}>8.5</Text>
-                </View>
-                <View style={styles.cardBottomBadgeMuted}>
-                  <Text style={styles.cardBadgeTextMuted}>4DX MOTION</Text>
-                </View>
-              </View>
-              <View style={styles.movieInfo}>
-                <Text style={styles.movieTitle} numberOfLines={1}>Midnight Velocity</Text>
-                <View style={styles.movieMeta}>
-                  <Text style={styles.movieMetaText}>Thriller • Heist</Text>
-                  <Text style={styles.movieMetaTime}>1h 48m</Text>
-                </View>
-              </View>
-              <View style={styles.movieTimes}>
-                <TouchableOpacity style={styles.smallTimeBtn}><Text style={styles.smallTimeBtnText}>15:00</Text></TouchableOpacity>
-                <TouchableOpacity style={styles.smallTimeBtn}><Text style={styles.smallTimeBtnText}>17:30</Text></TouchableOpacity>
-                <TouchableOpacity style={styles.smallTimeBtn}><Text style={styles.smallTimeBtnText}>20:45</Text></TouchableOpacity>
-              </View>
+              </TouchableOpacity>
             </View>
 
-          </ScrollView>
+            <View style={styles.movieInfo}>
+              <View style={styles.movieMetaTop}>
+                <View style={styles.titleRow}>
+                  <Text style={styles.movieTitle}>Orbital Silence</Text>
+                  <Text style={styles.durationText}>1h 58m</Text>
+                </View>
+                <View style={styles.tagsRow}>
+                  <View style={styles.tagBadge}>
+                    <Text style={styles.tagBadgeText}>Ambient Drama</Text>
+                  </View>
+                  <View style={styles.tagBadge}>
+                    <Text style={styles.tagBadgeText}>Cosmic</Text>
+                  </View>
+                  <Text style={styles.hallText}>• Grand Auditorium</Text>
+                </View>
+              </View>
+
+              <View style={styles.screeningsBlock}>
+                <Text style={styles.screeningsOverline}>
+                  TODAY'S SCREENINGS
+                </Text>
+                <View style={styles.timeChipsRow}>
+                  <TouchableOpacity activeOpacity={0.8} style={styles.timeChipInactive}>
+                    <Text style={styles.timeChipTextInactive}>13:30</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity activeOpacity={0.8} style={styles.timeChipActive}>
+                    <Text style={styles.timeChipTextActive}>16:20</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity activeOpacity={0.8} style={styles.timeChipInactive}>
+                    <Text style={styles.timeChipTextInactive}>19:40</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={styles.bookingRow}>
+                <View>
+                  <Text style={styles.ticketTypeText}>Standard Ticket</Text>
+                  <Text style={styles.priceText}>$17.00</Text>
+                </View>
+                <TouchableOpacity activeOpacity={0.8}
+                  style={styles.bookBtn}
+                  onPress={() => router.push("/select-seats")}
+                >
+                  <Text style={styles.bookBtnText}>Book Spot</Text>
+                  <MaterialIcons
+                    name="arrow-forward"
+                    size={18}
+                    color={isDark ? "#1c1c1e" : "#ffffff"}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableOpacity>
+
+          {/* Movie Card 3 */}
+          <TouchableOpacity activeOpacity={0.8}
+            style={styles.movieCard}
+            onPress={() => router.push("/movie-details")}
+            activeOpacity={0.9}
+          >
+            <View style={styles.posterWrapper}>
+              <Image
+                source={{
+                  uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuDSz3VlZLU6muuM7CJmvsuZVAkPOIUaAcAmLkGKK1x6wwk34ar5htO0D-lYyPFa0L2UN6nbslmuJxiMfYmCbDeUMK9WYrQEzxyilxYTDk1Kl40Fopp56Jn_-KKEKQwXcN3bFTcghYlObgbEcwsevWpL-QxmzfCewQQDcbONN4-MqZoxtAb4uI1SeFwK7-qccHi985OMCcEIa3-u94voHjyO1up6nrnKgJYdo7aMCknmnIbKyv5Ux_fj",
+                }}
+                style={styles.posterImage}
+              />
+              <View style={styles.posterTopLeft}>
+                <View style={styles.ratingBadge}>
+                  <MaterialIcons name="star" size={14} color={isDark ? "#ffb370" : "#994700"} />
+                  <Text style={styles.ratingText}>9.6</Text>
+                </View>
+                <View style={styles.formatBadge}>
+                  <Text style={styles.formatBadgeText}>Standard 2D</Text>
+                </View>
+              </View>
+              <TouchableOpacity activeOpacity={0.8} style={styles.bookmarkBtn}>
+                <MaterialIcons
+                  name="favorite-border"
+                  size={18}
+                  color={isDark ? "#a1a1aa" : "#584235"}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.movieInfo}>
+              <View style={styles.movieMetaTop}>
+                <View style={styles.titleRow}>
+                  <Text style={styles.movieTitle}>Whisper of the Forest</Text>
+                  <Text style={styles.durationText}>1h 44m</Text>
+                </View>
+                <View style={styles.tagsRow}>
+                  <View style={styles.tagBadge}>
+                    <Text style={styles.tagBadgeText}>Animation</Text>
+                  </View>
+                  <View style={styles.tagBadge}>
+                    <Text style={styles.tagBadgeText}>Family</Text>
+                  </View>
+                  <Text style={styles.hallText}>• Garden Screening Room</Text>
+                </View>
+              </View>
+
+              <View style={styles.screeningsBlock}>
+                <Text style={styles.screeningsOverline}>
+                  TODAY'S SCREENINGS
+                </Text>
+                <View style={styles.timeChipsRow}>
+                  <TouchableOpacity activeOpacity={0.8} style={styles.timeChipActive}>
+                    <Text style={styles.timeChipTextActive}>11:00</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity activeOpacity={0.8} style={styles.timeChipInactive}>
+                    <Text style={styles.timeChipTextInactive}>15:15</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity activeOpacity={0.8} style={styles.timeChipInactive}>
+                    <Text style={styles.timeChipTextInactive}>18:30</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={styles.bookingRow}>
+                <View>
+                  <Text style={styles.ticketTypeText}>Standard Ticket</Text>
+                  <Text style={styles.priceText}>$14.50</Text>
+                </View>
+                <TouchableOpacity activeOpacity={0.8}
+                  style={styles.bookBtn}
+                  onPress={() => router.push("/select-seats")}
+                >
+                  <Text style={styles.bookBtnText}>Book Spot</Text>
+                  <MaterialIcons
+                    name="arrow-forward"
+                    size={18}
+                    color={isDark ? "#1c1c1e" : "#ffffff"}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableOpacity>
+
+          {/* Movie Card 4 */}
+          <TouchableOpacity activeOpacity={0.8}
+            style={styles.movieCard}
+            onPress={() => router.push("/movie-details")}
+            activeOpacity={0.9}
+          >
+            <View style={styles.posterWrapper}>
+              <Image
+                source={{
+                  uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuDyAXj05eFKxwOzB3MDB9dS1b_xi1mMpN-CCPnuI4nEWjFvTphkbgDqTHKc6v7xGMH-B4qoZVRX9ADOh8bVAG4e9tCAsa503VH59UeMds5rbVwQ5FmkEDYeTHWMS0A3UKkO-lHrVfl44FcGqGaR4Wb0ze6J5neLznXZuiP5TNg3y7qZyqcop15B1ulSg5nhWUIkUEC__XEyzRXes11aTuTztmeiTQSH6ySnYOw1mrqUtFEWdEgPkCFQ",
+                }}
+                style={styles.posterImage}
+              />
+              <View style={styles.posterTopLeft}>
+                <View style={styles.ratingBadge}>
+                  <MaterialIcons name="star" size={14} color={isDark ? "#ffb370" : "#994700"} />
+                  <Text style={styles.ratingText}>8.9</Text>
+                </View>
+                <View style={styles.formatBadge}>
+                  <Text style={styles.formatBadgeText}>IMAX 70mm</Text>
+                </View>
+              </View>
+              <TouchableOpacity activeOpacity={0.8} style={styles.bookmarkBtn}>
+                <MaterialIcons
+                  name="favorite-border"
+                  size={18}
+                  color={isDark ? "#a1a1aa" : "#584235"}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.movieInfo}>
+              <View style={styles.movieMetaTop}>
+                <View style={styles.titleRow}>
+                  <Text style={styles.movieTitle}>Project Aegis: Zero</Text>
+                  <Text style={styles.durationText}>2h 31m</Text>
+                </View>
+                <View style={styles.tagsRow}>
+                  <View style={styles.tagBadge}>
+                    <Text style={styles.tagBadgeText}>Mecha Epic</Text>
+                  </View>
+                  <View style={styles.tagBadge}>
+                    <Text style={styles.tagBadgeText}>Adventure</Text>
+                  </View>
+                  <Text style={styles.hallText}>• Dome 1</Text>
+                </View>
+              </View>
+
+              <View style={styles.screeningsBlock}>
+                <Text style={styles.screeningsOverline}>
+                  TODAY'S SCREENINGS
+                </Text>
+                <View style={styles.timeChipsRow}>
+                  <TouchableOpacity activeOpacity={0.8} style={styles.timeChipInactive}>
+                    <Text style={styles.timeChipTextInactive}>12:15</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity activeOpacity={0.8} style={styles.timeChipInactive}>
+                    <Text style={styles.timeChipTextInactive}>16:00</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity activeOpacity={0.8} style={styles.timeChipActive}>
+                    <Text style={styles.timeChipTextActive}>21:15</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={styles.bookingRow}>
+                <View>
+                  <Text style={styles.ticketTypeText}>Standard Ticket</Text>
+                  <Text style={styles.priceText}>$18.50</Text>
+                </View>
+                <TouchableOpacity activeOpacity={0.8}
+                  style={styles.bookBtn}
+                  onPress={() => router.push("/select-seats")}
+                >
+                  <Text style={styles.bookBtnText}>Book Spot</Text>
+                  <MaterialIcons
+                    name="arrow-forward"
+                    size={18}
+                    color={isDark ? "#1c1c1e" : "#ffffff"}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Floating Filter Summary
+      <View style={[styles.floatingWrap, { bottom: Math.max(insets.bottom, 24) + 60 }]}>
+        <TouchableOpacity style={styles.floatingBadge} activeOpacity={0.9}>
+          <MaterialIcons name="tune" size={18} color={isDark ? "#4a2e1b" : "#ffdbc8"} />
+          <Text style={styles.floatingBadgeText}>4 Screenings Available</Text>
+          <MaterialIcons name="arrow-forward" size={16} color={isDark ? "#4a2e1b" : "#ffdbc8"} />
+        </TouchableOpacity>
+      </View> */}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FCF9F3',
+    backgroundColor: (isDark ? "#121212" : "#fcf9f3"),
   },
   safeHeader: {
-    backgroundColor: 'rgba(252, 249, 243, 0.9)',
+    backgroundColor: (isDark ? "rgba(18, 18, 18, 0.8)" : "rgba(252, 249, 243, 0.8)"),
     borderBottomWidth: 1,
-    borderBottomColor: '#F0EBE1',
+    borderBottomColor: "rgba(46,58,89,0.05)",
     zIndex: 50,
   },
   header: {
     height: 64,
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
-  headerBrand: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   brandIconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#FF7A00',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#fed7aa',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 4,
-    elevation: 3,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "rgba(255, 122, 0, 0.2)", // primary-container/20
+    alignItems: "center",
+    justifyContent: "center",
   },
-  greetingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  greetingText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#6E6966',
-    letterSpacing: 0.5,
-  },
-  waveEmoji: {
-    fontSize: 12,
-  },
-  brandTitle: {
-    fontSize: 19,
-    fontWeight: '800',
-    color: '#2D2B2A',
-    letterSpacing: -0.5,
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: (isDark ? "#ffffff" : "#1c1c18"),
+    letterSpacing: -0.01 * 20,
   },
   headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
   },
   notifBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#EAE4D8',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
   },
   profileBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#FFE7DB',
-    borderWidth: 2,
-    borderColor: '#ffffff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: (isDark ? "#ffb370" : "#994700"), // primary
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  content: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  topSection: {
+    gap: 24,
+    marginBottom: 24,
+  },
+  // Search
+  searchWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    position: "relative",
+    height: 52,
+  },
+  searchIcon: {
+    position: "absolute",
+    left: 16,
+    zIndex: 2,
+  },
+  searchInput: {
+    flex: 1,
+    height: "100%",
+    backgroundColor: (isDark ? "#1c1c1e" : "#ffffff"), // surface-container-lowest
+    borderRadius: 999,
+    paddingLeft: 48,
+    paddingRight: 56,
+    fontSize: 15,
+    color: (isDark ? "#ffffff" : "#1c1c18"),
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 1,
   },
-  profileBtnText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#FF7A00',
-  },
-  content: {
-    paddingTop: 16,
-  },
-  // Location & Search
-  topSection: {
-    paddingHorizontal: 20,
-    gap: 12,
-    marginBottom: 20,
-  },
-  locationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#ffffff',
-    borderRadius: 999,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: '#EAE4D8',
-  },
-  locationLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    flex: 1,
-  },
-  locationIconWrap: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255, 122, 0, 0.15)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  locationText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#2D2B2A',
-    flex: 1,
-  },
-  changeLocBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(255, 122, 0, 0.1)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
-  },
-  changeLocText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#FF7A00',
-  },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: '#EAE4D8',
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 15,
-    color: '#2D2B2A',
-    padding: 0,
-  },
   filterBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 12,
-    backgroundColor: '#F4EFE6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 8,
+    position: "absolute",
+    right: 8,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(153, 71, 0, 0.1)", // primary/10
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 2,
   },
-  // Category Pills
-  categoryScrollContainer: {
-    marginBottom: 20,
+  // Mood
+  moodSection: {
+    gap: 8,
   },
-  categoryScroll: {
-    paddingHorizontal: 20,
-    gap: 10,
+  sectionHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
-  catPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 999,
-    borderWidth: 1,
-    gap: 6,
+  sectionOverline: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: (isDark ? "#a1a1aa" : "#584235"), // on-surface-variant
+    letterSpacing: 0.06 * 11,
   },
-  catPillActive: {
-    backgroundColor: '#FF7A00',
-    borderColor: '#FF7A00',
-    shadowColor: '#fdba74',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 4,
-    elevation: 3,
+  resetBtn: {
+    paddingHorizontal: 4,
   },
-  catPillOutline: {
-    backgroundColor: '#ffffff',
-    borderColor: '#EAE4D8',
+  resetBtnText: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: (isDark ? "#ffb370" : "#994700"),
+    letterSpacing: 0.06 * 11,
   },
-  dotIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#FF7A00',
+  moodScroll: {
+    gap: 8,
+    paddingBottom: 4,
   },
-  catPillText: {
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 0.2,
-  },
-  catPillTextActive: {
-    color: '#ffffff',
-  },
-  // Hero Movie
-  heroSection: {
-    paddingHorizontal: 20,
-    marginBottom: 20,
-  },
-  heroCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 24,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#ECE5DA',
-  },
-  heroPosterWrap: {
-    width: '100%',
-    height: 224,
-    borderRadius: 16,
-    backgroundColor: '#FFE7DB',
-    overflow: 'hidden',
-    position: 'relative',
-    marginBottom: 16,
-  },
-  heroPoster: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  heroTopLeftBadges: {
-    position: 'absolute',
-    top: 12,
-    left: 12,
-    flexDirection: 'row',
-    gap: 6,
-  },
-  badgeWhite: {
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
+  moodChip: {
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
-  },
-  badgeWhiteText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#2D2B2A',
-  },
-  badgeWhiteMuted: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#6E6966',
-  },
-  badgeWhiteOrange: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#FF7A00',
-  },
-  heroTopRightBadge: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    backgroundColor: '#FFF1C2',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 999,
-  },
-  badgeYellowText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#684C00',
-    letterSpacing: 0.5,
-  },
-  heroBottomBadges: {
-    position: 'absolute',
-    bottom: 12,
-    left: 12,
-    flexDirection: 'row',
-    gap: 6,
-  },
-  heroInfo: {
-    gap: 6,
-    marginBottom: 16,
-  },
-  heroTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  heroTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#2D2B2A',
-    letterSpacing: -0.5,
-  },
-  durationBadge: {
-    backgroundColor: '#F4EFE6',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
-  },
-  durationText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#6E6966',
-  },
-  heroDesc: {
-    fontSize: 14,
-    color: '#6E6966',
-    lineHeight: 22,
-  },
-  showtimesStrip: {
-    backgroundColor: '#F8F4EC',
-    borderRadius: 16,
-    padding: 12,
-    flexDirection: 'column',
-    gap: 10,
-    borderWidth: 1,
-    borderColor: '#F0EAE0',
-    marginBottom: 16,
-  },
-  showtimesHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  showtimesTitle: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#2D2B2A',
-  },
-  showtimesTimes: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  timeBtnOutline: {
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#E4DCD0',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 999,
-  },
-  timeBtnOutlineText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#2D2B2A',
-  },
-  timeBtnActive: {
-    backgroundColor: '#FF7A00',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: '#FF7A00',
-    shadowColor: '#fdba74',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  timeBtnActiveText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#ffffff',
-  },
-  bookBtn: {
-    backgroundColor: '#FF7A00',
-    height: 52,
-    borderRadius: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    shadowColor: '#fdba74',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  bookBtnText: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#ffffff',
-    letterSpacing: 0.5,
-  },
-  // Promo
-  promoSection: {
-    paddingHorizontal: 20,
-    marginBottom: 24,
-  },
-  promoCard: {
-    backgroundColor: 'rgba(255, 231, 219, 0.8)',
-    borderWidth: 1,
-    borderColor: 'rgba(254, 215, 170, 0.7)',
-    borderRadius: 24,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  promoLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    flex: 1,
-  },
-  promoIconWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    backgroundColor: '#ffffff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  promoBadgeText: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#FF7A00',
-    letterSpacing: 0.5,
-    marginBottom: 2,
-  },
-  promoTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#2D2B2A',
-    marginBottom: 2,
-  },
-  promoDesc: {
-    fontSize: 12,
-    color: '#6E6966',
-  },
-  promoBtn: {
-    width: 36,
+    paddingHorizontal: 16,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#ffffff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
-  // Curated
+  moodChipActive: {
+    backgroundColor: (isDark ? "#ff8c1a" : "#ff7a00"),
+  },
+  moodChipInactive: {
+    backgroundColor: (isDark ? "#1c1c1e" : "#ffffff"),
+  },
+  moodChipText: {
+    fontSize: 14,
+    fontWeight: "700",
+    letterSpacing: 0.01 * 14,
+  },
+  moodChipTextActive: {
+    color: (isDark ? "#1c1c1e" : "#ffffff"),
+  },
+  moodChipTextInactive: {
+    color: (isDark ? "#a1a1aa" : "#584235"),
+  },
+  // Format Tabs
+  formatTabsWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: (isDark ? "#2c2c2e" : "#f0eee8"), // surface-container
+    padding: 4,
+    borderRadius: 999,
+  },
+  formatTab: {
+    flex: 1,
+    paddingVertical: 8,
+    alignItems: "center",
+    borderRadius: 999,
+  },
+  formatTabActive: {
+    backgroundColor: (isDark ? "#1c1c1e" : "#ffffff"),
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  formatTabText: {
+    fontSize: 14,
+    fontWeight: "700",
+    letterSpacing: 0.01 * 14,
+  },
+  formatTabTextActive: {
+    color: (isDark ? "#ffffff" : "#1c1c18"),
+  },
+  formatTabTextInactive: {
+    color: (isDark ? "#a1a1aa" : "#584235"),
+  },
+  // Curated List
   curatedSection: {
-    marginBottom: 24,
+    gap: 20,
   },
-  curatedHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    marginBottom: 12,
+  curatedHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
-  curatedHeaderLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  curatedTitleWrap: {
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
   },
   curatedDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#FF7A00',
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: (isDark ? "#ff8c1a" : "#ff7a00"),
   },
   curatedTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#2D2B2A',
-    letterSpacing: -0.5,
+    fontSize: 20,
+    fontWeight: "700",
+    color: (isDark ? "#ffffff" : "#1c1c18"),
+    letterSpacing: -0.01 * 20,
   },
-  seeAllBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-  },
-  seeAllText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#FF7A00',
-  },
-  curatedScroll: {
-    paddingHorizontal: 20,
-    gap: 16,
+  curatedSubtitle: {
+    fontSize: 13,
+    color: (isDark ? "#a1a1aa" : "#584235"),
   },
   movieCard: {
-    width: 256,
-    backgroundColor: '#ffffff',
-    borderRadius: 24,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#ECE5DA',
+    backgroundColor: (isDark ? "#1c1c1e" : "#ffffff"),
+    borderRadius: 32, // rounded-lg maps to 2rem
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
-  moviePosterWrap: {
-    width: '100%',
-    height: 144,
-    borderRadius: 16,
-    overflow: 'hidden',
-    position: 'relative',
-    marginBottom: 12,
+  posterWrapper: {
+    width: "100%",
+    height: 176, // h-44 = 44*4=176
+    position: "relative",
   },
-  moviePoster: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
+  posterImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
   },
-  cardTopBadge: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+  posterTopLeft: {
+    position: "absolute",
+    top: 12,
+    left: 12,
+    flexDirection: "row",
+    gap: 8,
+  },
+  ratingBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
     borderRadius: 999,
-    gap: 4,
+    backgroundColor: (isDark ? "rgba(28, 28, 30, 0.9)" : "rgba(255, 255, 255, 0.9)"),
   },
-  cardBadgeText: {
+  ratingText: {
     fontSize: 11,
-    fontWeight: '700',
-    color: '#2D2B2A',
+    fontWeight: "800",
+    color: (isDark ? "#ffb370" : "#994700"),
+    letterSpacing: 0.06 * 11,
   },
-  cardBottomBadgeDolby: {
-    position: 'absolute',
-    bottom: 10,
-    left: 10,
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+  formatBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
     borderRadius: 999,
+    backgroundColor: (isDark ? "rgba(28, 28, 30, 0.9)" : "rgba(255, 255, 255, 0.9)"),
   },
-  cardBadgeTextDolby: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#1E5699',
+  formatBadgeText: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: (isDark ? "#94a3b8" : "#525e7f"), // secondary
+    letterSpacing: 0.06 * 11,
   },
-  cardBottomBadgeImax: {
-    position: 'absolute',
-    bottom: 10,
-    left: 10,
-    backgroundColor: '#FFF1C2',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 999,
-  },
-  cardBadgeTextImax: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#725200',
-  },
-  cardBottomBadgeMuted: {
-    position: 'absolute',
-    bottom: 10,
-    left: 10,
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 999,
-  },
-  cardBadgeTextMuted: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#6E6966',
+  bookmarkBtn: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: (isDark ? "rgba(28, 28, 30, 0.9)" : "rgba(255, 255, 255, 0.9)"),
+    alignItems: "center",
+    justifyContent: "center",
   },
   movieInfo: {
-    marginBottom: 8,
+    padding: 20,
+    gap: 16,
+  },
+  movieMetaTop: {
+    gap: 4,
+  },
+  titleRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   movieTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#2D2B2A',
-    marginBottom: 2,
+    fontSize: 20,
+    fontWeight: "700",
+    color: (isDark ? "#ffffff" : "#1c1c18"),
+    letterSpacing: -0.01 * 20,
   },
-  movieMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  durationText: {
+    fontSize: 13,
+    color: (isDark ? "#a1a1aa" : "#584235"),
   },
-  movieMetaText: {
-    fontSize: 12,
-    color: '#6E6966',
+  tagsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: 8,
   },
-  movieMetaTime: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#6E6966',
+  tagBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 999,
+    backgroundColor: (isDark ? "#2c2c2e" : "#f0eee8"),
   },
-  movieTimes: {
-    flexDirection: 'row',
-    gap: 6,
+  tagBadgeText: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: (isDark ? "#a1a1aa" : "#584235"),
+    letterSpacing: 0.06 * 11,
   },
-  smallTimeBtn: {
-    flex: 1,
-    backgroundColor: '#F8F4EC',
-    borderWidth: 1,
-    borderColor: '#EAE4D8',
-    paddingVertical: 6,
-    borderRadius: 12,
-    alignItems: 'center',
+  hallText: {
+    fontSize: 13,
+    color: (isDark ? "#a1a1aa" : "#584235"),
   },
-  smallTimeBtnText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#2D2B2A',
+  screeningsBlock: {
+    gap: 8,
+  },
+  screeningsOverline: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: (isDark ? "#a1a1aa" : "#584235"),
+    letterSpacing: 0.06 * 11,
+  },
+  timeChipsRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  timeChipActive: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: (isDark ? "#4a2e1b" : "#ffdbc8"), // primary-fixed
+  },
+  timeChipTextActive: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#321200", // on-primary-fixed
+    letterSpacing: 0.01 * 14,
+  },
+  timeChipInactive: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: (isDark ? "#2c2c2e" : "#f0eee8"),
+  },
+  timeChipTextInactive: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: (isDark ? "#a1a1aa" : "#584235"),
+    letterSpacing: 0.01 * 14,
+  },
+  bookingRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingTop: 4,
+  },
+  ticketTypeText: {
+    fontSize: 13,
+    color: (isDark ? "#a1a1aa" : "#584235"),
+  },
+  priceText: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: (isDark ? "#ffffff" : "#1c1c18"),
+  },
+  bookBtn: {
+    height: 46,
+    paddingHorizontal: 24,
+    borderRadius: 999,
+    backgroundColor: (isDark ? "#ff8c1a" : "#ff7a00"),
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  bookBtnText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: (isDark ? "#1c1c1e" : "#ffffff"),
+    letterSpacing: 0.01 * 14,
+  },
+  // Floating Filter Summary
+  floatingWrap: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    zIndex: 40,
+  },
+  floatingBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: (isDark ? "#e2e8f0" : "#0d1a38"), // on-secondary-fixed
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 999,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  floatingBadgeText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: (isDark ? "#1c1c1e" : "#ffffff"), // on-primary
+    letterSpacing: 0.01 * 14,
   },
 });
