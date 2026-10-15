@@ -1,0 +1,10 @@
+{
+  "type": "service_account",
+  "project_id": "cinevo-bbc41",
+  "private_key_id": "be02e2c5adef27765f958e57aa150c4cf55835c1",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCjh/FUVE3duUV0\nfX3Fx60BGFo74nfwrBW/czkIP64vjdISsow3Je3nLfZXa2FmVXAJYc81ak+Mu20D\n9laH9RKd7CxZHx1QUEzgMrYYNHhV7vxZoZNojk3Qm0rpEfzj3uJ8JZ/c+glZ4QNW\nYWTuTrh+jPTMi4LRYRzykSYgEMbQiW5SZLybYwnH8c8HJy+sRM67UmZy+Y7Yn7Ii\nnLf+M2lSL802GbOH/ZnP+X+SKV1tTfRJC2cB/S1kansTDso3mwWP36GliHq2+dQi\nvU5DRem6mO5NvCtYcytAJfQ9n80AT7uZUf8WCOHMAEEQU1uB8BHqp4tsg/H5sqXi\ncGg+WRNFAgMBAAECggEAIIWVG4HGmI1TgEbCwBYlVF3s+BLiaoU2sAPwuDC96ewo\n9pn2o7MR3JN59cm/rZPZO6xtgoB5gJH3rL2NWO2Gvcxtx22WLVZC66V6LFcnBWQJ\nYKPvBnCijhWMMMzof8LgRPNQlyhMusiymre01GXocBaFSraGFjDbimwOansbpvYU\ncoxLf1Q4sXF9pCnsIL9iWH+phwUjSkSKBHBONGDuVNgx7q7gKlmjUq64lWFS3AMU\nsbiBcC9CrBOdgq+j8T9JX52p3T1aLignkA51DlR8fjSA7PLs/gHKTmkP4aVHNwT0\nL8KJfv4seZunqGgF0yYM+k/MUQzj+SlMqwpImGmdkwKBgQDXbP1EjCvKe+YiU/3p\n24MKi5yKUlyJxFY3MgMqKBVzRpxbTHKmA3Rp2pabq1iECX3pWTtcgaQQP7kFbF6q\ncBwTWlIht5zD49PbJSTtzV1tJaWe7rgnsJKeDSMNCWZbULSRR0sypUsCaEeWlwAs\nXSTSaBzHGZ/3pzYB6bXxELl7jwKBgQDCVMmWkgPu0mGf/5r+DRsTRqRUQyFhDabI\nUZgO95LxYn1r04AgPdvvNBJnNtP8tXljrAj6qppx5oMD3GKqIzfUvR50r7iZJWGr\nUr3XU5LaM0CyHGJYO/XMNzedn0S7IVaIf4WrSN2fwTaX6Ux2T+FkQJ5+lEEHpejc\nGdNZUalp6wKBgQC9htvDxPZ57EtqBC8t4bwGORH997wGUL/xS4TRP/avNn41LKrp\nN7zhrDg4uKTldVxbQfAh0MTAru9ewBsBJCTvOdVsaJf5F6W59ZHpzXXWovp1O1y1\nPnmfp7sgqxZsXDKgZfLYmefGNGxXJn42ibPtkT9QQ1Ejlu7C/BTgA3DMLQKBgFDe\nB6VozcosMgPq0gy2V3YGB4wpA1Ln42eozKYt0DAy1A5yzPadx1AbUy0wW7blrcYU\naQgmxm5vhkWtCEHUtf8JVAsqtJ7GN4abv/RDCvFSMrHrreEZ0odQ0wv8oxVcIi5b\nIrzMba11Mcq1guQZCao2Wb5C42zTVbuB47lfiihRAoGAKqD/S2IOy99pg3tZGuf9\nVwGfOtheLLcY1ZdZI/1OrfgAUZx2wV58ypitL5FIYE43K77VLhuWSi40wLXO/q35\n1V2uz8d9vjjef9HEEME8gH8nYJ9MSp/TQD5UG2d5ky4WodITfeP0EskOBAHB+bHr\nVyVeYyZbuegSNQH8V8nZwgE=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@cinevo-bbc41.iam.gserviceaccount.com",
+  "client_id": "105529858240645849040",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs"
+}

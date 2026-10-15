@@ -1,0 +1,14 @@
+{
+  "s3_region": "ap-south-1",
+  "node_env": "development",
+  "api_port": "3002",
+  "development": {
+    "username": "root",
+    "password": "6468",
+    "database": "cinevo_users",
+    "host": "localhost",
+    "port": 3007,
+    "dialect": "mysql",
+    "use_env_variable": false
+  }
+}
